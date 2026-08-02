@@ -168,7 +168,8 @@ function App() {
               left: 0,
               width: '100vw',
               height: '100vh',
-              objectFit: 'cover'
+              objectFit: 'cover',
+              transform: 'scaleX(1)' // Memastikan kamera tidak terbalik (1 = normal, -1 = mirror)
             }}
           />
 
