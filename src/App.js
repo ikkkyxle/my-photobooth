@@ -8,7 +8,7 @@ function App() {
   const [frameColor, setFrameColor] = useState('#ffffff');
   
   const webcamRef = useRef(null);
-  const stripRef = useRef(null); // Ref untuk menangkap area photostrip
+  const stripRef = useRef(null);
 
   const TOTAL_PHOTOS = 3;
 
@@ -29,11 +29,11 @@ function App() {
     }
   };
 
-  // Fungsi Simpan Foto ke Folder / Download
+  // Fungsi Simpan Foto ke Folder
   const downloadPhotostrip = async () => {
     if (stripRef.current) {
       const canvas = await html2canvas(stripRef.current, {
-        scale: 2, // Meningkatkan kualitas/resolusi gambar
+        scale: 2,
         useCORS: true
       });
       
@@ -53,23 +53,21 @@ function App() {
 
   return (
     <div style={{ 
-      minHeight: '100vh', 
-      backgroundColor: '#f3f4f6', 
-      display: 'flex', 
-      flexDirection: 'column', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
+      width: '100vw', 
+      height: '100vh', 
+      margin: 0, 
+      padding: 0, 
+      overflow: 'hidden', 
       fontFamily: 'sans-serif',
-      padding: '20px'
+      backgroundColor: '#000'
     }}>
 
-      {/* ----------------- STEP 1: HALAMAN AWAL (UBAH KE FULL SCREEN) ----------------- */}
+      {/* ----------------- STEP 1: HALAMAN AWAL ----------------- */}
       {step === 'welcome' && (
         <div style={{
-          // INI MEMBUAT JADI SATU LAYAR PENUH
-          width: '100vw',
-          height: '100vh',
-          backgroundColor: '#ffffff', // Warna background layar
+          width: '100%',
+          height: '100%',
+          backgroundColor: '#ffffff',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -77,45 +75,26 @@ function App() {
           textAlign: 'center',
           padding: '20px',
           boxSizing: 'border-box'
-          // Shadow dan border radius dari kotak putih sebelumnya sudah dihapus
         }}>
-          {/* Logo / Icon App (Bisa ganti foto nanti) */}
           <div style={{ fontSize: '100px', marginBottom: '20px' }}>📸</div>
-
-          {/* Nama Aplikasi */}
-          <h1 style={{ 
-            color: '#1f2937', 
-            marginBottom: '15px', 
-            fontSize: '48px', // Ukuran font lebih besar
-            fontWeight: 'bold'
-          }}>
+          <h1 style={{ color: '#1f2937', marginBottom: '15px', fontSize: '48px', fontWeight: 'bold' }}>
             SnapBooth
           </h1>
-
-          {/* Deskripsi */}
-          <p style={{ 
-            color: '#6b7280', 
-            marginBottom: '40px', 
-            fontSize: '18px', // Ukuran font lebih besar
-            maxWidth: '600px' // Agar teks tidak terlalu lebar ke samping
-          }}>
-            "Ambil {TOTAL_PHOTOS} foto terbaikmu dan pilih bingkai yang unik!, lalu simpan hasilnya sebagai photostrip kerenmu."
+          <p style={{ color: '#6b7280', marginBottom: '40px', fontSize: '18px', maxWidth: '600px' }}>
+            Ambil {TOTAL_PHOTOS} foto terbaikmu dan pilih bingkai yang unik!
           </p>
-
-          {/* Tombol Start */}
           <button 
             onClick={() => { setPhotos([]); setStep('camera'); }}
             style={{
-              padding: '18px 40px', // Tombol lebih besar
+              padding: '18px 40px',
               backgroundColor: '#4f46e5',
               color: '#fff',
               border: 'none',
-              borderRadius: '12px', // Sedikit lebih kotak/modern
-              fontSize: '18px', // Font tombol lebih besar
+              borderRadius: '12px',
+              fontSize: '18px',
               fontWeight: 'bold',
               cursor: 'pointer',
-              transition: 'background-color 0.2s',
-              boxShadow: '0 4px 6px rgba(79, 70, 229, 0.3)' // Shadow tombol
+              boxShadow: '0 4px 6px rgba(79, 70, 229, 0.3)'
             }}
           >
             Mulai Photobooth 🚀
@@ -123,13 +102,92 @@ function App() {
         </div>
       )}
 
-      {/* ----------------- STEP 3: HALAMAN PILIH FRAME & DOWNLOAD ----------------- */}
+      {/* ----------------- STEP 2: HALAMAN KAMERA (FULL SCREEN) ----------------- */}
+      {step === 'camera' && (
+        <div style={{ 
+          position: 'relative', 
+          width: '100vw', 
+          height: '100vh', 
+          backgroundColor: '#000'
+        }}>
+          <Webcam
+            audio={false}
+            ref={webcamRef}
+            screenshotFormat="image/png"
+            videoConstraints={{ facingMode: "user" }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+              objectFit: 'cover'
+            }}
+          />
+
+          {/* Overlay Kontrol Kamera */}
+          <div style={{
+            position: 'absolute',
+            bottom: '40px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '15px',
+            zIndex: 10
+          }}>
+            <div style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.6)',
+              color: '#fff',
+              padding: '8px 18px',
+              borderRadius: '20px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              backdropFilter: 'blur(4px)'
+            }}>
+              Foto ke-{photos.length + 1} dari {TOTAL_PHOTOS}
+            </div>
+
+            <button 
+              onClick={capture} 
+              style={{
+                width: '75px',
+                height: '75px',
+                borderRadius: '50%',
+                backgroundColor: '#ffffff',
+                border: '4px solid #10b981',
+                fontSize: '28px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.5)'
+              }}
+            >
+              📸
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ----------------- STEP 3: HALAMAN PILIH FRAME ----------------- */}
       {step === 'frame' && (
-        <div style={{ textAlign: 'center', maxWidth: '600px', width: '100%' }}>
+        <div style={{ 
+          width: '100vw', 
+          height: '100vh', 
+          backgroundColor: '#f3f4f6', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          overflowY: 'auto',
+          padding: '20px',
+          boxSizing: 'border-box'
+        }}>
           <h2 style={{ color: '#1f2937', marginBottom: '10px' }}>Pilih Warna Frame</h2>
           <p style={{ color: '#6b7280', marginBottom: '20px' }}>Sesuaikan gaya photostrip milikmu!</p>
 
-          {/* Pilihan Warna Frame */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '25px' }}>
             {['#ffffff', '#18181b', '#f43f5e', '#3b82f6', '#f59e0b', '#10b981'].map((color) => (
               <button
@@ -147,7 +205,6 @@ function App() {
             ))}
           </div>
 
-          {/* Area Photostrip (yang akan di-download) */}
           <div 
             ref={stripRef}
             style={{ 
@@ -179,7 +236,6 @@ function App() {
             </div>
           </div>
 
-          {/* Tombol Aksi Akhir */}
           <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
             <button 
               onClick={downloadPhotostrip} 
