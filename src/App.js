@@ -160,7 +160,7 @@ function App() {
             audio={false}
             ref={webcamRef}
             screenshotFormat="image/png"
-            mirrored={false}
+            mirrored={true}
             videoConstraints={{ facingMode: "user" }}
             style={{
               position: 'absolute',
@@ -169,7 +169,7 @@ function App() {
               width: '100vw',
               height: '100vh',
               objectFit: 'cover',
-              transform: 'scaleX(1)' // Memastikan kamera tidak terbalik (1 = normal, -1 = mirror)
+              transform: 'scaleX(-1)' // Membalik video preview agar tidak mirror/terbalik
             }}
           />
 
