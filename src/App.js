@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import html2canvas from 'html2canvas';
 
@@ -6,30 +6,72 @@ function App() {
   const [step, setStep] = useState('welcome');
   const [photos, setPhotos] = useState([]);
   const [frameColor, setFrameColor] = useState('#ffffff');
-  
+
+  // State untuk Hitung Mundur & Pop-up Preview
+  const [countdown, setCountdown] = useState(null);
+  const [previewPhoto, setPreviewPhoto] = useState(null);
+  const [isCounting, setIsCounting] = useState(false);
+
   const webcamRef = useRef(null);
   const stripRef = useRef(null);
 
   const TOTAL_PHOTOS = 3;
 
-  // Fungsi Ambil Foto
-  const capture = () => {
-    if (photos.length < TOTAL_PHOTOS) {
+  // Effect untuk menjalankan timer hitung mundur (3, 2, 1)
+  useEffect(() => {
+    if (countdown === null) return;
+
+    if (countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (countdown === 0) {
+      // Ketika timer menyentuh 0, langsung jepret foto
+      capturePhoto();
+      setCountdown(null);
+      setIsCounting(false);
+    }
+  }, [countdown]);
+
+  // Memulai proses hitung mundur
+  const startCountdown = () => {
+    if (photos.length < TOTAL_PHOTOS && !isCounting) {
+      setIsCounting(true);
+      setCountdown(3); // Mulai dari angka 3
+    }
+  };
+
+  // Ambil gambar dari kamera & munculkan Pop-up Preview
+  const capturePhoto = () => {
+    if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
       if (imageSrc) {
-        const newPhotos = [...photos, imageSrc];
-        setPhotos(newPhotos);
-
-        if (newPhotos.length === TOTAL_PHOTOS) {
-          setTimeout(() => {
-            setStep('frame');
-          }, 500);
-        }
+        setPreviewPhoto(imageSrc); // Tampilkan di Pop-up
       }
     }
   };
 
-  // Fungsi Simpan Foto ke Folder
+  // Simpan foto dari Pop-up Preview ke daftar koleksi
+  const acceptPhoto = () => {
+    if (previewPhoto) {
+      const newPhotos = [...photos, previewPhoto];
+      setPhotos(newPhotos);
+      setPreviewPhoto(null);
+
+      // Jika jumlah foto sudah genap 3, pindah ke halaman frame
+      if (newPhotos.length === TOTAL_PHOTOS) {
+        setStep('frame');
+      }
+    }
+  };
+
+  // Ulangi foto saat ini (dari Pop-up Preview)
+  const retakePhoto = () => {
+    setPreviewPhoto(null);
+  };
+
+  // Fungsi Simpan Foto ke Folder / Download
   const downloadPhotostrip = async () => {
     if (stripRef.current) {
       const canvas = await html2canvas(stripRef.current, {
@@ -49,6 +91,9 @@ function App() {
   const resetAll = () => {
     setPhotos([]);
     setStep('welcome');
+    setPreviewPhoto(null);
+    setCountdown(null);
+    setIsCounting(false);
   };
 
   return (
@@ -102,7 +147,7 @@ function App() {
         </div>
       )}
 
-      {/* ----------------- STEP 2: HALAMAN KAMERA (FULL SCREEN) ----------------- */}
+      {/* ----------------- STEP 2: HALAMAN KAMERA ----------------- */}
       {step === 'camera' && (
         <div style={{ 
           position: 'relative', 
@@ -125,7 +170,33 @@ function App() {
             }}
           />
 
-          {/* Overlay Kontrol Kamera */}
+          {/* OVERLAY TIMER HITUNG MUNDUR (3, 2, 1) */}
+          {countdown !== null && (
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+              backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 20
+            }}>
+              <span style={{
+                fontSize: '140px',
+                fontWeight: 'bold',
+                color: '#ffffff',
+                textShadow: '0 4px 20px rgba(0,0,0,0.8)',
+                animation: 'pulse 0.5s infinite alternate'
+              }}>
+                {countdown > 0 ? countdown : '📸'}
+              </span>
+            </div>
+          )}
+
+          {/* OVERLAY TOMBOL KONTROL */}
           <div style={{
             position: 'absolute',
             bottom: '40px',
@@ -150,24 +221,95 @@ function App() {
             </div>
 
             <button 
-              onClick={capture} 
+              onClick={startCountdown}
+              disabled={isCounting || previewPhoto !== null}
               style={{
                 width: '75px',
                 height: '75px',
                 borderRadius: '50%',
-                backgroundColor: '#ffffff',
+                backgroundColor: isCounting ? '#ccc' : '#ffffff',
                 border: '4px solid #10b981',
                 fontSize: '28px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                cursor: 'pointer',
+                cursor: isCounting ? 'not-allowed' : 'pointer',
                 boxShadow: '0 4px 15px rgba(0,0,0,0.5)'
               }}
             >
               📸
             </button>
           </div>
+
+          {/* ----------------- POP-UP / MODAL PREVIEW HASIL FOTO ----------------- */}
+          {previewPhoto && (
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+              backgroundColor: 'rgba(0, 0, 0, 0.85)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 30,
+              padding: '20px',
+              boxSizing: 'border-box'
+            }}>
+              <h3 style={{ color: '#fff', marginBottom: '15px', fontSize: '22px' }}>
+                Hasil Foto ke-{photos.length + 1}
+              </h3>
+
+              <img 
+                src={previewPhoto} 
+                alt="Preview" 
+                style={{
+                  maxWidth: '85%',
+                  maxHeight: '55vh',
+                  borderRadius: '12px',
+                  boxShadow: '0 8px 30px rgba(0,0,0,0.5)',
+                  marginBottom: '20px'
+                }}
+              />
+
+              <div style={{ display: 'flex', gap: '15px' }}>
+                <button
+                  onClick={retakePhoto}
+                  style={{
+                    padding: '12px 24px',
+                    backgroundColor: '#ef4444',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🔄 Ulangi Foto
+                </button>
+
+                <button
+                  onClick={acceptPhoto}
+                  style={{
+                    padding: '12px 24px',
+                    backgroundColor: '#10b981',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer'
+                  }}
+                >
+                  ✅ Gunakan Foto
+                </button>
+              </div>
+            </div>
+          )}
+
         </div>
       )}
 
