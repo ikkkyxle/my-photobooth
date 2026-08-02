@@ -17,7 +17,7 @@ function App() {
 
   const TOTAL_PHOTOS = 3;
 
-  // Effect untuk menjalankan timer hitung mundur (3, 2, 1)
+  // Effect untuk menjalankan timer hitung mundur (5, 4, 3, 2, 1)
   useEffect(() => {
     if (countdown === null) return;
 
@@ -34,11 +34,11 @@ function App() {
     }
   }, [countdown]);
 
-  // Memulai proses hitung mundur
+  // Memulai proses hitung mundur dari angka 5
   const startCountdown = () => {
     if (photos.length < TOTAL_PHOTOS && !isCounting) {
       setIsCounting(true);
-      setCountdown(3); // Mulai dari angka 3
+      setCountdown(5);
     }
   };
 
@@ -47,7 +47,7 @@ function App() {
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
       if (imageSrc) {
-        setPreviewPhoto(imageSrc); // Tampilkan di Pop-up
+        setPreviewPhoto(imageSrc);
       }
     }
   };
@@ -155,10 +155,12 @@ function App() {
           height: '100vh', 
           backgroundColor: '#000'
         }}>
+          {/* Webcam dengan mirrored={false} agar tidak terbalik */}
           <Webcam
             audio={false}
             ref={webcamRef}
             screenshotFormat="image/png"
+            mirrored={false}
             videoConstraints={{ facingMode: "user" }}
             style={{
               position: 'absolute',
@@ -170,7 +172,7 @@ function App() {
             }}
           />
 
-          {/* OVERLAY TIMER HITUNG MUNDUR (3, 2, 1) */}
+          {/* OVERLAY TIMER HITUNG MUNDUR (5, 4, 3, 2, 1) */}
           {countdown !== null && (
             <div style={{
               position: 'absolute',
