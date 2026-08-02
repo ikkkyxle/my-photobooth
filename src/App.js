@@ -1,14 +1,16 @@
 import React, { useState, useRef } from 'react';
 import Webcam from 'react-webcam';
+import html2canvas from 'html2canvas';
 
 function App() {
-  // Mode Halaman: 'welcome' | 'camera' | 'frame'
   const [step, setStep] = useState('welcome');
   const [photos, setPhotos] = useState([]);
   const [frameColor, setFrameColor] = useState('#ffffff');
+  
   const webcamRef = useRef(null);
+  const stripRef = useRef(null); // Ref untuk menangkap area photostrip
 
-  const TOTAL_PHOTOS = 3; // Jumlah foto yang dibutuhkan
+  const TOTAL_PHOTOS = 3;
 
   // Fungsi Ambil Foto
   const capture = () => {
@@ -18,13 +20,28 @@ function App() {
         const newPhotos = [...photos, imageSrc];
         setPhotos(newPhotos);
 
-        // Jika foto sudah mencukupi target, otomatis pindah ke pilih frame
         if (newPhotos.length === TOTAL_PHOTOS) {
           setTimeout(() => {
             setStep('frame');
           }, 500);
         }
       }
+    }
+  };
+
+  // Fungsi Simpan Foto ke Folder / Download
+  const downloadPhotostrip = async () => {
+    if (stripRef.current) {
+      const canvas = await html2canvas(stripRef.current, {
+        scale: 2, // Meningkatkan kualitas/resolusi gambar
+        useCORS: true
+      });
+      
+      const image = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = image;
+      link.download = `snapbooth-${Date.now()}.png`;
+      link.click();
     }
   };
 
@@ -125,7 +142,7 @@ function App() {
         </div>
       )}
 
-      {/* ----------------- STEP 3: HALAMAN PILIH FRAME ----------------- */}
+      {/* ----------------- STEP 3: HALAMAN PILIH FRAME & DOWNLOAD ----------------- */}
       {step === 'frame' && (
         <div style={{ textAlign: 'center', maxWidth: '600px', width: '100%' }}>
           <h2 style={{ color: '#1f2937', marginBottom: '10px' }}>Pilih Warna Frame</h2>
@@ -149,15 +166,18 @@ function App() {
             ))}
           </div>
 
-          {/* Preview Hasil Photostrip */}
-          <div style={{ 
-            display: 'inline-block', 
-            backgroundColor: frameColor, 
-            padding: '20px 20px 30px 20px', 
-            borderRadius: '8px',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-            transition: '0.3s'
-          }}>
+          {/* Area Photostrip (yang akan di-download) */}
+          <div 
+            ref={stripRef}
+            style={{ 
+              display: 'inline-block', 
+              backgroundColor: frameColor, 
+              padding: '20px 20px 30px 20px', 
+              borderRadius: '8px',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+              transition: '0.3s'
+            }}
+          >
             {photos.map((photo, index) => (
               <div key={index} style={{ marginBottom: '12px' }}>
                 <img 
@@ -179,7 +199,23 @@ function App() {
           </div>
 
           {/* Tombol Aksi Akhir */}
-          <div style={{ marginTop: '30px' }}>
+          <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+            <button 
+              onClick={downloadPhotostrip} 
+              style={{
+                padding: '12px 24px',
+                backgroundColor: '#4f46e5',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '15px',
+                fontWeight: 'bold',
+                cursor: 'pointer'
+              }}
+            >
+              📥 Simpan Foto
+            </button>
+
             <button 
               onClick={resetAll} 
               style={{
