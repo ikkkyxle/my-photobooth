@@ -63,82 +63,63 @@ function App() {
       padding: '20px'
     }}>
 
-      {/* ----------------- STEP 1: HALAMAN AWAL ----------------- */}
+      {/* ----------------- STEP 1: HALAMAN AWAL (UBAH KE FULL SCREEN) ----------------- */}
       {step === 'welcome' && (
         <div style={{
-          backgroundColor: '#ffffff',
-          padding: '40px',
-          borderRadius: '16px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+          // INI MEMBUAT JADI SATU LAYAR PENUH
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: '#ffffff', // Warna background layar
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
           textAlign: 'center',
-          maxWidth: '400px',
-          width: '100%'
+          padding: '20px',
+          boxSizing: 'border-box'
+          // Shadow dan border radius dari kotak putih sebelumnya sudah dihapus
         }}>
-          <div style={{ fontSize: '64px', marginBottom: '10px' }}>📸</div>
-          <h1 style={{ color: '#1f2937', marginBottom: '8px', fontSize: '28px' }}>SnapBooth</h1>
-          <p style={{ color: '#6b7280', marginBottom: '30px', fontSize: '14px' }}>
-            Ambil {TOTAL_PHOTOS} foto terbaikmu dan pilih bingkai yang unik!
+          {/* Logo / Icon App (Bisa ganti foto nanti) */}
+          <div style={{ fontSize: '100px', marginBottom: '20px' }}>📸</div>
+
+          {/* Nama Aplikasi */}
+          <h1 style={{ 
+            color: '#1f2937', 
+            marginBottom: '15px', 
+            fontSize: '48px', // Ukuran font lebih besar
+            fontWeight: 'bold'
+          }}>
+            SnapBooth
+          </h1>
+
+          {/* Deskripsi */}
+          <p style={{ 
+            color: '#6b7280', 
+            marginBottom: '40px', 
+            fontSize: '18px', // Ukuran font lebih besar
+            maxWidth: '600px' // Agar teks tidak terlalu lebar ke samping
+          }}>
+            "Ambil {TOTAL_PHOTOS} foto terbaikmu dan pilih bingkai yang unik!, lalu simpan hasilnya sebagai photostrip kerenmu."
           </p>
+
+          {/* Tombol Start */}
           <button 
             onClick={() => { setPhotos([]); setStep('camera'); }}
             style={{
-              width: '100%',
-              padding: '14px',
+              padding: '18px 40px', // Tombol lebih besar
               backgroundColor: '#4f46e5',
               color: '#fff',
               border: 'none',
-              borderRadius: '8px',
-              fontSize: '16px',
+              borderRadius: '12px', // Sedikit lebih kotak/modern
+              fontSize: '18px', // Font tombol lebih besar
               fontWeight: 'bold',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'background-color 0.2s',
+              boxShadow: '0 4px 6px rgba(79, 70, 229, 0.3)' // Shadow tombol
             }}
           >
             Mulai Photobooth 🚀
           </button>
-        </div>
-      )}
-
-      {/* ----------------- STEP 2: HALAMAN KAMERA ----------------- */}
-      {step === 'camera' && (
-        <div style={{ textAlign: 'center', maxWidth: '500px', width: '100%' }}>
-          <h2 style={{ color: '#1f2937', marginBottom: '10px' }}>
-            Foto ke-{photos.length + 1} dari {TOTAL_PHOTOS}
-          </h2>
-
-          <div style={{ 
-            borderRadius: '12px', 
-            overflow: 'hidden', 
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            display: 'inline-block',
-            backgroundColor: '#000',
-            marginBottom: '20px'
-          }}>
-            <Webcam
-              audio={false}
-              ref={webcamRef}
-              screenshotFormat="image/png"
-              width={400}
-              videoConstraints={{ width: 400, height: 300, facingMode: "user" }}
-            />
-          </div>
-
-          <div>
-            <button 
-              onClick={capture} 
-              style={{
-                padding: '14px 28px',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                cursor: 'pointer'
-              }}
-            >
-              📸 Ambil Foto ({photos.length}/{TOTAL_PHOTOS})
-            </button>
-          </div>
         </div>
       )}
 
