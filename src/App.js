@@ -133,7 +133,7 @@ function App() {
             style={{
               padding: '18px 40px',
               backgroundColor: '#4f46e5',
-              color: '#fff',
+              color: '#f8fc37',
               border: 'none',
               borderRadius: '12px',
               fontSize: '18px',
@@ -420,3 +420,4 @@ function App() {
 }
 
 export default App;
+
