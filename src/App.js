@@ -97,6 +97,7 @@ function App() {
   };
 
   return (
+
     <div style={{ 
       width: '100vw', 
       height: '100vh', 
@@ -315,7 +316,7 @@ function App() {
         </div>
       )}
 
-      {/* ----------------- STEP 3: HALAMAN PILIH FRAME ----------------- */}
+     {/* ----------------- STEP 3: HALAMAN PILIH FRAME ----------------- */}
       {step === 'frame' && (
         <div style={{ 
           width: '100vw', 
@@ -329,17 +330,19 @@ function App() {
           padding: '20px',
           boxSizing: 'border-box'
         }}>
-          <h2 style={{ color: '#1f2937', marginBottom: '10px' }}>Pilih Warna Frame</h2>
-          <p style={{ color: '#6b7280', marginBottom: '20px' }}>Sesuaikan gaya photostrip milikmu!</p>
+          <h2 style={{ color: '#1f2937', marginBottom: '10px' }}>Pilih Frame Buatanmu</h2>
+          <p style={{ color: '#6b7280', marginBottom: '20px' }}>Pilih gaya frame custom untuk photostrip-mu!</p>
 
+          {/* Tombol Pilihan Frame (Warna Polos atau Gambar Custom) */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '25px' }}>
-            {['#ffffff', '#18181b', '#f43f5e', '#3b82f6', '#f59e0b', '#10b981'].map((color) => (
+            {/* Opsi Warna Polos */}
+            {['#ffffff', '#18181b', '#f43f5e'].map((color) => (
               <button
                 key={color}
                 onClick={() => setFrameColor(color)}
                 style={{
-                  width: '36px',
-                  height: '36px',
+                  width: '40px',
+                  height: '40px',
                   borderRadius: '50%',
                   backgroundColor: color,
                   border: frameColor === color ? '3px solid #4f46e5' : '1px solid #ccc',
@@ -347,21 +350,57 @@ function App() {
                 }}
               />
             ))}
+
+            {/* Opsi Frame Custom Buatan Kamu (Gambar PNG) */}
+            <button
+              onClick={() => setFrameColor('/frame-custom.png')} // Sesuaikan path jika ditaruh di public
+              style={{
+                padding: '8px 12px',
+                borderRadius: '8px',
+                backgroundColor: '#fff',
+                border: frameColor === '/frame-custom.png' ? '3px solid #4f46e5' : '1px solid #ccc',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '12px'
+              }}
+            >
+              🎨 Frame Customku
+            </button>
           </div>
 
+          {/* Area Photostrip yang akan didownload */}
           <div 
             ref={stripRef}
             style={{ 
+              position: 'relative', // Penting agar gambar frame custom bisa melayang di atasnya
               display: 'inline-block', 
-              backgroundColor: frameColor, 
+              backgroundColor: frameColor.startsWith('#') ? frameColor : '#ffffff', // Jika pakai gambar, background dasarnya putih/bebas
               padding: '20px 20px 30px 20px', 
               borderRadius: '8px',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-              transition: '0.3s'
+              overflow: 'hidden'
             }}
           >
+            {/* Jika memilih frame custom berupa gambar PNG, tampilkan sebagai overlay */}
+            {!frameColor.startsWith('#') && (
+              <img 
+                src={frameColor} 
+                alt="Custom Frame Overlay"
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  pointerEvents: 'none', // Supaya tidak mengganggu klik
+                  zIndex: 10
+                }}
+              />
+            )}
+
+            {/* Daftar Foto */}
             {photos.map((photo, index) => (
-              <div key={index} style={{ marginBottom: '12px' }}>
+              <div key={index} style={{ marginBottom: '12px', position: 'relative', zIndex: 1 }}>
                 <img 
                   src={photo} 
                   alt={`Snap ${index}`} 
@@ -369,12 +408,15 @@ function App() {
                 />
               </div>
             ))}
+            
             <div style={{ 
               marginTop: '15px', 
               fontSize: '12px', 
               fontWeight: 'bold', 
-              color: frameColor === '#ffffff' ? '#333' : '#fff',
-              letterSpacing: '2px'
+              color: '#333',
+              letterSpacing: '2px',
+              position: 'relative',
+              zIndex: 1
             }}>
               SNAPBOOTH
             </div>
@@ -414,10 +456,7 @@ function App() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
-
 export default App;
-
