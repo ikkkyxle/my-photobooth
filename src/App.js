@@ -381,8 +381,8 @@ function App() {
               overflow: 'hidden'
             }}
           >
-            {/* Opsi Frame Custom Buatan Kamu (Gambar PNG) */}
-            <button
+          {/* Opsi Frame Custom Buatan Kamu (Gambar PNG) */}
+          <button
             onClick={() => setFrameColor('/my-custom-frame.png')} // Sesuaikan dengan nama file gambarmu di folder public
             style={{
               padding: '8px 12px',
