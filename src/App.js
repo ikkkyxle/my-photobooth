@@ -381,22 +381,21 @@ function App() {
               overflow: 'hidden'
             }}
           >
-            {/* Jika memilih frame custom berupa gambar PNG, tampilkan sebagai overlay */}
-            {!frameColor.startsWith('#') && (
-              <img 
-                src={frameColor} 
-                alt="Custom Frame Overlay"
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  pointerEvents: 'none', // Supaya tidak mengganggu klik
-                  zIndex: 10
-                }}
-              />
-            )}
+            {/* Opsi Frame Custom Buatan Kamu (Gambar PNG) */}
+            <button
+            onClick={() => setFrameColor('/my-custom-frame.png')} // Sesuaikan dengan nama file gambarmu di folder public
+            style={{
+              padding: '8px 12px',
+              borderRadius: '8px',
+              backgroundColor: '#fff',
+              border: frameColor === '/my-custom-frame.png' ? '3px solid #4f46e5' : '1px solid #ccc',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '12px'
+            }}
+          >
+            🎨 Frame Customku
+          </button>
 
             {/* Daftar Foto */}
             {photos.map((photo, index) => (
