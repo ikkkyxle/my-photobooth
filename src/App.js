@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import html2canvas from 'html2canvas';
-import customFrameImg from './frame.png';
+const [selectedFrame, setSelectedFrame] = useState('/frame.png');
 
 function App() {
   const [step, setStep] = useState('welcome');
@@ -112,12 +112,12 @@ function App() {
                 style={{ width: '50px', height: '50px', borderRadius: '50%', backgroundColor: color, border: selectedFrame === color ? '4px solid #4f46e5' : '1px solid #ccc', cursor: 'pointer' }}
               />
             ))}
-            <button
-              onClick={() => setSelectedFrame(customFrameImg)}
-              style={{ padding: '12px 20px', borderRadius: '8px', backgroundColor: '#fff', border: selectedFrame === customFrameImg ? '4px solid #4f46e5' : '1px solid #ccc', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
-            >
-              🎨 Frame Customku
-            </button>
+          <button
+            onClick={() => setSelectedFrame('/myframe.png')}
+            style={{ padding: '12px 20px', borderRadius: '8px', backgroundColor: '#fff', border: selectedFrame === '/myframe.png' ? '4px solid #4f46e5' : '1px solid #ccc', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
+          >
+            🎨 Frame Customku
+          </button>
           </div>
 
           <button 
