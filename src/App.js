@@ -7,11 +7,11 @@ function App() {
   const [step, setStep] = useState('welcome');
   const [photos, setPhotos] = useState([]);
   
-  // State untuk menyimpan frame yang dipilih (bisa warna atau gambar custom)
+  // State untuk menyimpan frame pilihan
   const [selectedFrame, setSelectedFrame] = useState(customFrameImg);
   const [frameColor, setFrameColor] = useState('#ffffff');
 
-  // State untuk Hitung Mundur & Pop-up Preview
+  // State Hitung Mundur & Preview
   const [countdown, setCountdown] = useState(null);
   const [previewPhoto, setPreviewPhoto] = useState(null);
   const [isCounting, setIsCounting] = useState(false);
@@ -54,7 +54,7 @@ function App() {
       setPreviewPhoto(null);
 
       if (newPhotos.length === TOTAL_PHOTOS) {
-        setStep('frame'); // Pindah ke hasil akhir photostrip
+        setStep('frame');
       }
     }
   };
@@ -83,28 +83,28 @@ function App() {
   return (
     <div style={{ width: '100vw', height: '100vh', margin: 0, padding: 0, overflow: 'hidden', fontFamily: 'sans-serif', backgroundColor: '#000' }}>
 
-      {/* ----------------- STEP 1: HALAMAN AWAL ----------------- */}
+      {/* HALAMAN 1: WELCOME */}
       {step === 'welcome' && (
         <div style={{ width: '100%', height: '100%', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '20px', boxSizing: 'border-box' }}>
           <div style={{ fontSize: '100px', marginBottom: '20px' }}>📸</div>
           <h1 style={{ color: '#1f2937', marginBottom: '15px', fontSize: '48px', fontWeight: 'bold' }}>SnapBooth</h1>
-          <p style={{ color: '#6b7280', marginBottom: '40px', fontSize: '18px', maxWidth: '600px' }}>Ambil {TOTAL_PHOTOS} foto terbaikmu dan pilih bingkai yang unik!</p>
+          <p style={{ color: '#6b7280', marginBottom: '40px', fontSize: '18px' }}>Ambil {TOTAL_PHOTOS} foto terbaikmu dengan frame custom!</p>
           <button 
-            onClick={() => setStep('select-frame')} // Masuk ke sesi pilih frame dulu
-            style={{ padding: '18px 40px', backgroundColor: '#4f46e5', color: '#f8fc37', border: 'none', borderRadius: '12px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px rgba(79, 70, 229, 0.3)' }}
+            onClick={() => setStep('select-frame')}
+            style={{ padding: '18px 40px', backgroundColor: '#4f46e5', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' }}
           >
             Mulai Photobooth 🚀
           </button>
         </div>
       )}
 
-      {/* ----------------- SESI KHUSUS PILIH FRAME DI AWAL ----------------- */}
+      {/* HALAMAN 2: PILIH FRAME */}
       {step === 'select-frame' && (
         <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
           <h2 style={{ color: '#1f2937', marginBottom: '10px' }}>Pilih Frame Favoritmu</h2>
-          <p style={{ color: '#6b7280', marginBottom: '25px' }}>Tentukan gaya frame sebelum mulai berfoto!</p>
+          <p style={{ color: '#6b7280', marginBottom: '25px' }}>Pilih warna polos atau gunakan frame buatanmu sendiri!</p>
 
-          <div style={{ display: 'flex', gap: '15px', marginBottom: '35px' }}>
+          <div style={{ display: 'flex', gap: '15px', marginBottom: '35px', alignItems: 'center' }}>
             {['#ffffff', '#18181b', '#f43f5e'].map((color) => (
               <button
                 key={color}
@@ -114,7 +114,7 @@ function App() {
             ))}
             <button
               onClick={() => setSelectedFrame(customFrameImg)}
-              style={{ padding: '10px 16px', borderRadius: '8px', backgroundColor: '#fff', border: selectedFrame === customFrameImg ? '4px solid #4f46e5' : '1px solid #ccc', cursor: 'pointer', fontWeight: 'bold' }}
+              style={{ padding: '12px 20px', borderRadius: '8px', backgroundColor: '#fff', border: selectedFrame === customFrameImg ? '4px solid #4f46e5' : '1px solid #ccc', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
             >
               🎨 Frame Customku
             </button>
@@ -129,7 +129,7 @@ function App() {
         </div>
       )}
 
-      {/* ----------------- STEP 2: HALAMAN KAMERA ----------------- */}
+      {/* HALAMAN 3: KAMERA */}
       {step === 'camera' && (
         <div style={{ position: 'relative', width: '100vw', height: '100vh', backgroundColor: '#000' }}>
           <Webcam
@@ -175,12 +175,11 @@ function App() {
         </div>
       )}
 
-      {/* ----------------- STEP 3: HALAMAN HASIL & FOTOSTRIP ----------------- */}
+      {/* HALAMAN 4: HASIL FOTOSTRIP */}
       {step === 'frame' && (
         <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflowY: 'auto', padding: '20px', boxSizing: 'border-box' }}>
-          <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip Kamu Berhasil Dibuat! 🎉</h2>
+          <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip Kamu 🎉</h2>
 
-          {/* Area Photostrip yang Menggunakan Frame Pilihan */}
           <div 
             ref={stripRef}
             style={{ 
@@ -193,11 +192,11 @@ function App() {
               overflow: 'hidden'
             }}
           >
-            {/* Overlay Gambar Frame Custom Jika Dipilih */}
+            {/* Menampilkan Gambar Frame Custom Jika Dipilih */}
             {!frameColor.startsWith('#') && (
               <img 
                 src={frameColor} 
-                alt="" 
+                alt="Custom Frame" 
                 style={{
                   position: 'absolute',
                   top: 0,
@@ -217,7 +216,7 @@ function App() {
               </div>
             ))}
             
-            <div style={{ marginTop: '15px', fontSize: '12px', fontWeight: 'bold', color: '#333', letterSpacing: '2px', position: 'relative', zIndex: 1 }}>
+            <div style={{ marginTop: '15px', fontSize: '12px', fontWeight: 'bold', color: '#333', letterSpacing: '2px', position: 'relative', zIndex: 1, textAlign: 'center' }}>
               SNAPBOOTH
             </div>
           </div>
