@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import html2canvas from 'html2canvas';
+import customFrameImg from './frame.png';
 
 function App() {
   const [step, setStep] = useState('welcome');
@@ -97,7 +98,6 @@ function App() {
   };
 
   return (
-
     <div style={{ 
       width: '100vw', 
       height: '100vh', 
@@ -156,7 +156,6 @@ function App() {
           height: '100vh', 
           backgroundColor: '#000'
         }}>
-          {/* Webcam dengan mirrored={false} agar tidak terbalik */}
           <Webcam
             audio={false}
             ref={webcamRef}
@@ -169,11 +168,10 @@ function App() {
               width: '100vw',
               height: '100vh',
               objectFit: 'cover',
-              transform: 'scaleX(1)' // Memastikan posisi kamera normal/tidak mirror
+              transform: 'scaleX(1)'
             }}
           />
 
-          {/* OVERLAY TIMER HITUNG MUNDUR (5, 4, 3, 2, 1) */}
           {countdown !== null && (
             <div style={{
               position: 'absolute',
@@ -191,15 +189,13 @@ function App() {
                 fontSize: '140px',
                 fontWeight: 'bold',
                 color: '#ffffff',
-                textShadow: '0 4px 20px rgba(0,0,0,0.8)',
-                animation: 'pulse 0.5s infinite alternate'
+                textShadow: '0 4px 20px rgba(0,0,0,0.8)'
               }}>
                 {countdown > 0 ? countdown : '📸'}
               </span>
             </div>
           )}
 
-          {/* OVERLAY TOMBOL KONTROL */}
           <div style={{
             position: 'absolute',
             bottom: '40px',
@@ -244,7 +240,6 @@ function App() {
             </button>
           </div>
 
-          {/* ----------------- POP-UP / MODAL PREVIEW HASIL FOTO ----------------- */}
           {previewPhoto && (
             <div style={{
               position: 'absolute',
@@ -312,11 +307,10 @@ function App() {
               </div>
             </div>
           )}
-
         </div>
       )}
 
-     {/* ----------------- STEP 3: HALAMAN PILIH FRAME ----------------- */}
+      {/* ----------------- STEP 3: HALAMAN PILIH FRAME ----------------- */}
       {step === 'frame' && (
         <div style={{ 
           width: '100vw', 
@@ -333,9 +327,8 @@ function App() {
           <h2 style={{ color: '#1f2937', marginBottom: '10px' }}>Pilih Frame Buatanmu</h2>
           <p style={{ color: '#6b7280', marginBottom: '20px' }}>Pilih gaya frame custom untuk photostrip-mu!</p>
 
-          {/* Tombol Pilihan Frame (Warna Polos atau Gambar Custom) */}
+          {/* Tombol Pilihan Frame */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '25px' }}>
-            {/* Opsi Warna Polos */}
             {['#ffffff', '#18181b', '#f43f5e'].map((color) => (
               <button
                 key={color}
@@ -351,14 +344,13 @@ function App() {
               />
             ))}
 
-            {/* Opsi Frame Custom Buatan Kamu (Gambar PNG) */}
             <button
-              onClick={() => setFrameColor('/frame-custom.png')} // Sesuaikan path jika ditaruh di public
+              onClick={() => setFrameColor(customFrameImg)}
               style={{
                 padding: '8px 12px',
                 borderRadius: '8px',
                 backgroundColor: '#fff',
-                border: frameColor === '/frame-custom.png' ? '3px solid #4f46e5' : '1px solid #ccc',
+                border: frameColor === customFrameImg ? '3px solid #4f46e5' : '1px solid #ccc',
                 cursor: 'pointer',
                 fontWeight: 'bold',
                 fontSize: '12px'
@@ -368,36 +360,37 @@ function App() {
             </button>
           </div>
 
-          {/* Area Photostrip yang akan didownload */}
+          {/* Area Photostrip */}
           <div 
             ref={stripRef}
             style={{ 
-              position: 'relative', // Penting agar gambar frame custom bisa melayang di atasnya
+              position: 'relative', 
               display: 'inline-block', 
-              backgroundColor: frameColor.startsWith('#') ? frameColor : '#ffffff', // Jika pakai gambar, background dasarnya putih/bebas
+              backgroundColor: typeof frameColor === 'string' && frameColor.startsWith('#') ? frameColor : '#ffffff', 
               padding: '20px 20px 30px 20px', 
               borderRadius: '8px',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
               overflow: 'hidden'
             }}
           >
-          {/* Opsi Frame Custom Buatan Kamu (Gambar PNG) */}
-          <button
-            onClick={() => setFrameColor('/my-custom-frame.png')} // Sesuaikan dengan nama file gambarmu di folder public
-            style={{
-              padding: '8px 12px',
-              borderRadius: '8px',
-              backgroundColor: '#fff',
-              border: frameColor === '/my-custom-frame.png' ? '3px solid #4f46e5' : '1px solid #ccc',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              fontSize: '12px'
-            }}
-          >
-            🎨 Frame Customku
-          </button>
+            {/* Overlay Gambar Frame Custom */}
+            {typeof frameColor !== 'string' && (
+              <img 
+                src={frameColor} 
+                alt="" 
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  pointerEvents: 'none',
+                  zIndex: 10
+                }}
+              />
+            )}
 
-            {/* Daftar Foto */}
             {photos.map((photo, index) => (
               <div key={index} style={{ marginBottom: '12px', position: 'relative', zIndex: 1 }}>
                 <img 
@@ -458,4 +451,5 @@ function App() {
     </div>
   );
 }
+
 export default App;
