@@ -123,7 +123,7 @@ function App() {
                 boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
               }}
             >
-              <img src={frame1} alt="Frame 1" style={{ width: '397px', height: '1123px', objectFit: 'cover', borderRadius: '4px', display: 'block', marginBottom: '8px' }} />
+              <img src={frame1} alt="Frame 1" style={{ width: '100px', height: '200px', objectFit: 'cover', borderRadius: '4px', display: 'block', marginBottom: '8px' }} />
               <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Frame 1</span>
             </div>
 
@@ -140,7 +140,7 @@ function App() {
                 boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
               }}
             >
-              <img src={frame2} alt="Frame 2" style={{ width: '397px', height: '1123px', objectFit: 'cover', borderRadius: '4px', display: 'block', marginBottom: '8px' }} />
+              <img src={frame2} alt="Frame 2" style={{ width: '100px', height: '200px', objectFit: 'cover', borderRadius: '4px', display: 'block', marginBottom: '8px' }} />
               <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Frame 2</span>
             </div>
 
