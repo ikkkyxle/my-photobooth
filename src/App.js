@@ -1,17 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import html2canvas from 'html2canvas';
-import customFrameImg from './frame.png';
+
+// Import beberapa frame custommu dari folder src
+import frame1 from './frame1.png';
+import frame2 from './frame2.png';
 
 function App() {
   const [step, setStep] = useState('welcome');
   const [photos, setPhotos] = useState([]);
   
-  // State untuk menyimpan frame pilihan
-  const [selectedFrame, setSelectedFrame] = useState(customFrameImg);
-  const [frameColor, setFrameColor] = useState('#ffffff');
+  // State untuk menyimpan frame pilihan (bisa warna heksadesimal atau variabel gambar import)
+  const [selectedFrame, setSelectedFrame] = useState(frame1);
+  const [frameColor, setFrameColor] = useState(frame1);
 
-  // State Hitung Mundur & Preview
+  // State Hitung Mundur & Preview Foto
   const [countdown, setCountdown] = useState(null);
   const [previewPhoto, setPreviewPhoto] = useState(null);
   const [isCounting, setIsCounting] = useState(false);
@@ -88,7 +91,7 @@ function App() {
         <div style={{ width: '100%', height: '100%', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '20px', boxSizing: 'border-box' }}>
           <div style={{ fontSize: '100px', marginBottom: '20px' }}>📸</div>
           <h1 style={{ color: '#1f2937', marginBottom: '15px', fontSize: '48px', fontWeight: 'bold' }}>SnapBooth</h1>
-          <p style={{ color: '#6b7280', marginBottom: '40px', fontSize: '18px' }}>Ambil {TOTAL_PHOTOS} foto terbaikmu dengan frame custom!</p>
+          <p style={{ color: '#6b7280', marginBottom: '40px', fontSize: '18px' }}>Ambil {TOTAL_PHOTOS} foto terbaikmu dengan pilihan frame keren!</p>
           <button 
             onClick={() => setStep('select-frame')}
             style={{ padding: '18px 40px', backgroundColor: '#4f46e5', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' }}
@@ -98,26 +101,66 @@ function App() {
         </div>
       )}
 
-      {/* HALAMAN 2: PILIH FRAME */}
+      {/* HALAMAN 2: PILIH FRAME DENGAN PREVIEW */}
       {step === 'select-frame' && (
-        <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
+        <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box', overflowY: 'auto' }}>
           <h2 style={{ color: '#1f2937', marginBottom: '10px' }}>Pilih Frame Favoritmu</h2>
-          <p style={{ color: '#6b7280', marginBottom: '25px' }}>Pilih warna polos atau gunakan frame buatanmu sendiri!</p>
+          <p style={{ color: '#6b7280', marginBottom: '25px' }}>Klik salah satu pilihan frame di bawah ini untuk melihat preview-nya:</p>
 
-          <div style={{ display: 'flex', gap: '15px', marginBottom: '35px', alignItems: 'center' }}>
-            {['#ffffff', '#18181b', '#f43f5e'].map((color) => (
-              <button
-                key={color}
-                onClick={() => setSelectedFrame(color)}
-                style={{ width: '50px', height: '50px', borderRadius: '50%', backgroundColor: color, border: selectedFrame === color ? '4px solid #4f46e5' : '1px solid #ccc', cursor: 'pointer' }}
-              />
-            ))}
-          <button
-            onClick={() => setSelectedFrame(customFrameImg)}
-            style={{ padding: '12px 20px', borderRadius: '8px', backgroundColor: '#fff', border: selectedFrame === '/myframe.png' ? '4px solid #4f46e5' : '1px solid #ccc', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
-          >
-            🎨 Frame Customku
-          </button>
+          {/* Kotak Pilihan dengan Preview Gambar */}
+          <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            
+            {/* Pilihan Frame 1 */}
+            <div 
+              onClick={() => setSelectedFrame(frame1)}
+              style={{
+                cursor: 'pointer',
+                border: selectedFrame === frame1 ? '4px solid #4f46e5' : '2px solid #ccc',
+                borderRadius: '10px',
+                padding: '10px',
+                backgroundColor: '#fff',
+                textAlign: 'center',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+              }}
+            >
+              <img src={frame1} alt="Frame 1" style={{ width: '80px', height: '120px', objectFit: 'cover', borderRadius: '4px', display: 'block', marginBottom: '8px' }} />
+              <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Frame 1</span>
+            </div>
+
+            {/* Pilihan Frame 2 */}
+            <div 
+              onClick={() => setSelectedFrame(frame2)}
+              style={{
+                cursor: 'pointer',
+                border: selectedFrame === frame2 ? '4px solid #4f46e5' : '2px solid #ccc',
+                borderRadius: '10px',
+                padding: '10px',
+                backgroundColor: '#fff',
+                textAlign: 'center',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+              }}
+            >
+              <img src={frame2} alt="Frame 2" style={{ width: '80px', height: '120px', objectFit: 'cover', borderRadius: '4px', display: 'block', marginBottom: '8px' }} />
+              <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Frame 2</span>
+            </div>
+
+            {/* Pilihan Warna Polos (Opsional) */}
+            <div 
+              onClick={() => setSelectedFrame('#ffffff')}
+              style={{
+                cursor: 'pointer',
+                border: selectedFrame === '#ffffff' ? '4px solid #4f46e5' : '2px solid #ccc',
+                borderRadius: '10px',
+                padding: '10px',
+                backgroundColor: '#fff',
+                textAlign: 'center',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+              }}
+            >
+              <div style={{ width: '80px', height: '120px', backgroundColor: '#ffffff', border: '1px solid #ddd', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>⚪</div>
+              <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Polos Putih</span>
+            </div>
+
           </div>
 
           <button 
