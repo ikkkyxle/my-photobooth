@@ -366,7 +366,7 @@ function App() {
             style={{ 
               position: 'relative', 
               display: 'inline-block', 
-              backgroundColor: typeof frameColor === 'string' && frameColor.startsWith('#') ? frameColor : '#ffffff', 
+              backgroundColor: frameColor.startsWith('#') ? frameColor : '#ffffff', 
               padding: '20px 20px 30px 20px', 
               borderRadius: '8px',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
@@ -374,7 +374,7 @@ function App() {
             }}
           >
             {/* Overlay Gambar Frame Custom */}
-            {typeof frameColor !== 'string' && (
+            {!frameColor.startsWith('#') && (
               <img 
                 src={frameColor} 
                 alt="" 
