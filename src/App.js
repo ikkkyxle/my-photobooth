@@ -218,7 +218,7 @@ function App() {
         </div>
       )}
 
-{/* HALAMAN 4: HASIL FOTOSTRIP 2 STRIP BERDAMPINGAN */}
+{       /* HALAMAN 4: HASIL FOTOSTRIP 2 STRIP DENGAN JARAK POTONG */}
       {step === 'frame' && (
         <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflowY: 'auto', padding: '20px', boxSizing: 'border-box' }}>
           <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip 2 Strip Kamu 🎉</h2>
@@ -235,9 +235,9 @@ function App() {
               overflow: 'hidden'
             }}
           >
-            {/* Layer Foto Menjadi 2 Kolom Strip (Masing-masing 3 Foto) */}
+            {/* Layer Foto Menjadi 2 Kolom dengan Jarak Pemisah di Tengah */}
             {photos.length > 0 && (
-              <div style={{ position: 'absolute', top: '72px', left: '25px', display: 'flex', gap: '15px', zIndex: 1 }}>
+              <div style={{ position: 'absolute', top: '72px', left: '25px', display: 'flex', gap: '30px', zIndex: 1 }}>
                 
                 {/* Strip Kiri (Foto 1, 2, 3) */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -247,7 +247,7 @@ function App() {
                       src={photo} 
                       alt={`Snap Left ${index}`} 
                       style={{ 
-                        width: '165px', 
+                        width: '155px',        /* Lebar diperkecil agar ada ruang tengah */
                         height: '135px', 
                         objectFit: 'cover', 
                         display: 'block' 
@@ -264,7 +264,7 @@ function App() {
                       src={photo} 
                       alt={`Snap Right ${index}`} 
                       style={{ 
-                        width: '165px', 
+                        width: '155px',        /* Lebar diperkecil agar ada ruang tengah */
                         height: '135px', 
                         objectFit: 'cover', 
                         display: 'block' 
