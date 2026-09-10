@@ -10,7 +10,7 @@ function App() {
   const [step, setStep] = useState('welcome');
   const [photos, setPhotos] = useState([]);
   
-  // State untuk menyimpan frame pilihan (bisa warna heksadesimal atau variabel gambar import)
+  // State untuk menyimpan frame pilihan
   const [selectedFrame, setSelectedFrame] = useState(frame1);
   const [frameColor, setFrameColor] = useState(frame1);
 
@@ -22,7 +22,8 @@ function App() {
   const webcamRef = useRef(null);
   const stripRef = useRef(null);
 
-  const TOTAL_PHOTOS = 3;
+  // Diubah menjadi 6 foto
+  const TOTAL_PHOTOS = 6;
 
   useEffect(() => {
     if (countdown === null) return;
@@ -70,7 +71,7 @@ function App() {
       const image = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = image;
-      link.download = `snapbooth-${Date.now()}.png`;
+      link.download = `snapbooth-6foto-${Date.now()}.png`;
       link.click();
     }
   };
@@ -143,7 +144,7 @@ function App() {
               <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Frame 2</span>
             </div>
 
-            {/* Pilihan Warna Polos (Opsional) */}
+            {/* Pilihan Warna Polos */}
             <div 
               onClick={() => setSelectedFrame('#ffffff')}
               style={{
@@ -217,10 +218,10 @@ function App() {
         </div>
       )}
 
-      {/* HALAMAN 4: HASIL FOTOSTRIP 4R PRESISI */}
+      {/* HALAMAN 4: HASIL FOTOSTRIP 4R DENGAN 6 FOTO */}
       {step === 'frame' && (
         <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflowY: 'auto', padding: '20px', boxSizing: 'border-box' }}>
-          <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip 4R Kamu 🎉</h2>
+          <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip 6 Foto Kamu 🎉</h2>
 
           {/* Kanvas 4R Ukuran 400x600 piksel */}
           <div 
@@ -234,9 +235,9 @@ function App() {
               overflow: 'hidden'
             }}
           >
-            {/* Layer Foto-Foto di Belakang Frame */}
+            {/* Layer 6 Foto di Belakang Frame */}
             {photos.length > 0 && (
-              <div style={{ position: 'absolute', top: '72px', left: '42px', display: 'flex', flexDirection: 'column', gap: '32px', zIndex: 1 }}>
+              <div style={{ position: 'absolute', top: '45px', left: '42px', display: 'flex', flexDirection: 'column', gap: '12px', zIndex: 1 }}>
                 {photos.map((photo, index) => (
                   <img 
                     key={index} 
@@ -244,7 +245,7 @@ function App() {
                     alt={`Snap ${index}`} 
                     style={{ 
                       width: '316px', 
-                      height: '135px', 
+                      height: '74px',        /* Tinggi disesuaikan untuk 6 slot foto */
                       objectFit: 'cover', 
                       display: 'block' 
                     }} 
@@ -253,7 +254,7 @@ function App() {
               </div>
             )}
 
-            {/* Layer Gambar Frame di Depan (Transparan di tengah) */}
+            {/* Layer Gambar Frame di Depan */}
             {!frameColor.startsWith('#') && (
               <img 
                 src={frameColor} 
