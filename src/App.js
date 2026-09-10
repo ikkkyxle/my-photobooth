@@ -14,6 +14,9 @@ function App() {
   const [selectedFrame, setSelectedFrame] = useState(frame1);
   const [frameColor, setFrameColor] = useState(frame1);
 
+  // State untuk jumlah foto pilihan user (default 3 atau 6)
+  const [totalPhotos, setTotalPhotos] = useState(3);
+
   // State Hitung Mundur & Preview Foto
   const [countdown, setCountdown] = useState(null);
   const [previewPhoto, setPreviewPhoto] = useState(null);
@@ -21,9 +24,6 @@ function App() {
 
   const webcamRef = useRef(null);
   const stripRef = useRef(null);
-
-  // Diubah menjadi 6 foto
-  const TOTAL_PHOTOS = 6;
 
   useEffect(() => {
     if (countdown === null) return;
@@ -38,7 +38,7 @@ function App() {
   }, [countdown]);
 
   const startCountdown = () => {
-    if (photos.length < TOTAL_PHOTOS && !isCounting) {
+    if (photos.length < totalPhotos && !isCounting) {
       setIsCounting(true);
       setCountdown(5);
     }
@@ -57,7 +57,7 @@ function App() {
       setPhotos(newPhotos);
       setPreviewPhoto(null);
 
-      if (newPhotos.length === TOTAL_PHOTOS) {
+      if (newPhotos.length === totalPhotos) {
         setStep('frame');
       }
     }
@@ -71,7 +71,7 @@ function App() {
       const image = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = image;
-      link.download = `snapbooth-6foto-${Date.now()}.png`;
+      link.download = `snapbooth-${totalPhotos}foto-${Date.now()}.png`;
       link.click();
     }
   };
@@ -92,7 +92,7 @@ function App() {
         <div style={{ width: '100%', height: '100%', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '20px', boxSizing: 'border-box' }}>
           <div style={{ fontSize: '100px', marginBottom: '20px' }}>📸</div>
           <h1 style={{ color: '#1f2937', marginBottom: '15px', fontSize: '48px', fontWeight: 'bold' }}>SnapBooth</h1>
-          <p style={{ color: '#6b7280', marginBottom: '40px', fontSize: '18px' }}>Ambil {TOTAL_PHOTOS} foto terbaikmu dengan pilihan frame keren!</p>
+          <p style={{ color: '#6b7280', marginBottom: '40px', fontSize: '18px' }}>Abadikan momen serumu dengan pilihan frame & mode foto keren!</p>
           <button 
             onClick={() => setStep('select-frame')}
             style={{ padding: '18px 40px', backgroundColor: '#4f46e5', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' }}
@@ -102,11 +102,11 @@ function App() {
         </div>
       )}
 
-      {/* HALAMAN 2: PILIH FRAME DENGAN PREVIEW */}
+      {/* HALAMAN 2: PILIH FRAME */}
       {step === 'select-frame' && (
         <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box', overflowY: 'auto' }}>
           <h2 style={{ color: '#1f2937', marginBottom: '10px' }}>Pilih Frame Favoritmu</h2>
-          <p style={{ color: '#6b7280', marginBottom: '25px' }}>Klik salah satu pilihan frame di bawah ini untuk melihat preview-nya:</p>
+          <p style={{ color: '#6b7280', marginBottom: '25px' }}>Klik salah satu pilihan frame di bawah ini:</p>
 
           <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', flexWrap: 'wrap', justifyContent: 'center' }}>
             
@@ -164,15 +164,72 @@ function App() {
           </div>
 
           <button 
-            onClick={() => { setFrameColor(selectedFrame); setPhotos([]); setStep('camera'); }}
+            onClick={() => { setFrameColor(selectedFrame); setStep('select-mode'); }}
             style={{ padding: '14px 32px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}
           >
-            Lanjut ke Kamera ➡️
+            Lanjut Pilih Mode ➡️
           </button>
         </div>
       )}
 
-      {/* HALAMAN 3: KAMERA */}
+      {/* HALAMAN 3: PILIH OPSI 3 FOTO ATAU 6 FOTO */}
+      {step === 'select-mode' && (
+        <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
+          <h2 style={{ color: '#1f2937', marginBottom: '10px' }}>Pilih Mode Photostrip</h2>
+          <p style={{ color: '#6b7280', marginBottom: '30px' }}>Berapa banyak foto yang ingin kamu ambil?</p>
+
+          <div style={{ display: 'flex', gap: '20px', marginBottom: '35px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            
+            {/* Opsi 3 Foto */}
+            <div 
+              onClick={() => setTotalPhotos(3)}
+              style={{
+                cursor: 'pointer',
+                border: totalPhotos === 3 ? '4px solid #4f46e5' : '2px solid #ccc',
+                borderRadius: '12px',
+                padding: '25px 35px',
+                backgroundColor: '#fff',
+                textAlign: 'center',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                width: '140px'
+              }}
+            >
+              <div style={{ fontSize: '32px', marginBottom: '10px' }}>📸 3x</div>
+              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#333' }}>3 Foto</span>
+              <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '5px' }}>1 Kolom Strip</p>
+            </div>
+
+            {/* Opsi 6 Foto */}
+            <div 
+              onClick={() => setTotalPhotos(6)}
+              style={{
+                cursor: 'pointer',
+                border: totalPhotos === 6 ? '4px solid #4f46e5' : '2px solid #ccc',
+                borderRadius: '12px',
+                padding: '25px 35px',
+                backgroundColor: '#fff',
+                textAlign: 'center',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                width: '140px'
+              }}
+            >
+              <div style={{ fontSize: '32px', marginBottom: '10px' }}>📸📸 6x</div>
+              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#333' }}>6 Foto</span>
+              <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '5px' }}>2 Strip Berdampingan</p>
+            </div>
+
+          </div>
+
+          <button 
+            onClick={() => { setPhotos([]); setStep('camera'); }}
+            style={{ padding: '14px 32px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}
+          >
+            Mulai Ambil Foto 🚀
+          </button>
+        </div>
+      )}
+
+      {/* HALAMAN 4: KAMERA */}
       {step === 'camera' && (
         <div style={{ position: 'relative', width: '100vw', height: '100vh', backgroundColor: '#000' }}>
           <Webcam
@@ -193,7 +250,7 @@ function App() {
 
           <div style={{ position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', zIndex: 10 }}>
             <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)', color: '#fff', padding: '8px 18px', borderRadius: '20px', fontSize: '16px', fontWeight: 'bold' }}>
-              Foto ke-{photos.length + 1} dari {TOTAL_PHOTOS}
+              Foto ke-{photos.length + 1} dari {totalPhotos}
             </div>
 
             <button 
@@ -218,10 +275,10 @@ function App() {
         </div>
       )}
 
-{       /* HALAMAN 4: HASIL FOTOSTRIP 2 STRIP DENGAN JARAK POTONG */}
+      {/* HALAMAN 5: HASIL FOTOSTRIP (OTOMATIS MENYESUAIKAN 3 ATAU 6 FOTO) */}
       {step === 'frame' && (
         <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflowY: 'auto', padding: '20px', boxSizing: 'border-box' }}>
-          <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip 2 Strip Kamu 🎉</h2>
+          <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip Kamu 🎉</h2>
 
           {/* Kanvas 4R Ukuran 400x600 piksel */}
           <div 
@@ -235,8 +292,27 @@ function App() {
               overflow: 'hidden'
             }}
           >
-            {/* Layer Foto Menjadi 2 Kolom dengan Jarak Pemisah di Tengah */}
-            {photos.length > 0 && (
+            {/* TAMPILAN JIKA PILIH 3 FOTO (1 Kolom ke bawah) */}
+            {totalPhotos === 3 && photos.length > 0 && (
+              <div style={{ position: 'absolute', top: '72px', left: '42px', display: 'flex', flexDirection: 'column', gap: '32px', zIndex: 1 }}>
+                {photos.map((photo, index) => (
+                  <img 
+                    key={index} 
+                    src={photo} 
+                    alt={`Snap ${index}`} 
+                    style={{ 
+                      width: '316px', 
+                      height: '135px', 
+                      objectFit: 'cover', 
+                      display: 'block' 
+                    }} 
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* TAMPILAN JIKA PILIH 6 FOTO (2 Strip Berdampingan dengan Jarak Tengah) */}
+            {totalPhotos === 6 && photos.length > 0 && (
               <div style={{ position: 'absolute', top: '72px', left: '25px', display: 'flex', gap: '30px', zIndex: 1 }}>
                 
                 {/* Strip Kiri (Foto 1, 2, 3) */}
@@ -247,7 +323,7 @@ function App() {
                       src={photo} 
                       alt={`Snap Left ${index}`} 
                       style={{ 
-                        width: '155px',        /* Lebar diperkecil agar ada ruang tengah */
+                        width: '155px', 
                         height: '135px', 
                         objectFit: 'cover', 
                         display: 'block' 
@@ -264,7 +340,7 @@ function App() {
                       src={photo} 
                       alt={`Snap Right ${index}`} 
                       style={{ 
-                        width: '155px',        /* Lebar diperkecil agar ada ruang tengah */
+                        width: '155px', 
                         height: '135px', 
                         objectFit: 'cover', 
                         display: 'block' 
