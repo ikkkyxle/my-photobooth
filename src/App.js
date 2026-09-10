@@ -244,58 +244,25 @@ function App() {
           >
          {/* TAMPILAN 6 FOTO */}
             {photos.length > 0 && (
-              <div style={{ position: 'absolute', top: '0px', left: '0px', width: '100%', height: '100%', zIndex: 1 }}>
-                
-                {/* Kotak 1 (Kiri Atas) */}
-                <div style={{ position: 'absolute', top: '75px', left: '68px', width: '128px', height: '121px', overflow: 'hidden' }}>
-                  <img src={photos[0]} alt="0" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
-
-                {/* Kotak 2 (Kanan Atas) */}
-                <div style={{ position: 'absolute', top: '75px', left: '204px', width: '128px', height: '121px', overflow: 'hidden' }}>
-                  <img src={photos[3]} alt="3" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
-
-                {/* Kotak 3 (Kiri Tengah) */}
-                <div style={{ position: 'absolute', top: '221px', left: '68px', width: '128px', height: '121px', overflow: 'hidden' }}>
-                  <img src={photos[1]} alt="1" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
-
-                {/* Kotak 4 (Kanan Tengah) */}
-                <div style={{ position: 'absolute', top: '221px', left: '204px', width: '128px', height: '121px', overflow: 'hidden' }}>
-                  <img src={photos[4]} alt="4" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
-
-                {/* Kotak 5 (Kiri Bawah) */}
-                <div style={{ position: 'absolute', top: '366px', left: '68px', width: '128px', height: '121px', overflow: 'hidden' }}>
-                  <img src={photos[2]} alt="2" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
-
-                {/* Kotak 6 (Kanan Bawah) */}
-                <div style={{ position: 'absolute', top: '366px', left: '204px', width: '128px', height: '121px', overflow: 'hidden' }}>
-                  <img src={photos[5]} alt="5" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
-
+              <div style={{ position: 'absolute', top: '75px', left: '62px', width: '276px', height: '410px', display: 'grid', gridTemplateColumns: '131px 131px', gridTemplateRows: '124px 124px 124px', gap: '19px 14px', zIndex: 1 }}>
+                {photos.map((photo, index) => (
+                  <div key={index} style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+                    <img 
+                      src={photo} 
+                      alt={`photo-${index}`} 
+                      style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        objectFit: 'cover', 
+                        display: 'block', 
+                        transform: 'scaleX(-1)' 
+                      }} 
+                    />
+                  </div>
+                ))}
               </div>
             )}
-
-            {/* Layer Gambar Frame Utama */}
-            {!frameColor.startsWith('#') && (
-              <img 
-                src={frameColor} 
-                alt="Custom Frame 4R" 
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'fill',
-                  pointerEvents: 'none',
-                  zIndex: 10
-                }}
-              />
-            )}
+            
           </div>
 
           <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
