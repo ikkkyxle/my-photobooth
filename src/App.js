@@ -307,23 +307,23 @@ function App() {
               </div>
             )}
 
-            {/* TAMPILAN 6 FOTO (Langsung 6 Foto di Dalam 1 Kanvas 4R Sesuai Lubang Frame Asli) */}
+{           /* TAMPILAN 6 FOTO */}
             {totalPhotos === 6 && photos.length > 0 && (
               <div style={{ position: 'absolute', top: '0px', left: '0px', width: '100%', height: '100%', zIndex: 1 }}>
                 
-                {/* Kolom Kiri (Foto 1, 2, 3) - Sesuaikan koordinat left & top jika kurang pas */}
-                <div style={{ position: 'absolute', top: '165px', left: '44px', display: 'flex', flexDirection: 'column', gap: '115px' }}>
+                {/* Kolom Kiri (Foto 1, 2, 3) */}
+                <div style={{ position: 'absolute', top: '190px', left: '60px', display: 'flex', flexDirection: 'column', gap: '158px' }}>
                   {photos.slice(0, 3).map((photo, index) => (
-                    <div key={index} style={{ width: '115px', height: '100px', overflow: 'hidden' }}>
+                    <div key={index} style={{ width: '125px', height: '90px', overflow: 'hidden' }}>
                       <img src={photo} alt={`L-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                     </div>
                   ))}
                 </div>
 
                 {/* Kolom Kanan (Foto 4, 5, 6) */}
-                <div style={{ position: 'absolute', top: '165px', left: '241px', display: 'flex', flexDirection: 'column', gap: '115px' }}>
+                <div style={{ position: 'absolute', top: '190px', left: '215px', display: 'flex', flexDirection: 'column', gap: '158px' }}>
                   {photos.slice(3, 6).map((photo, index) => (
-                    <div key={index} style={{ width: '115px', height: '100px', overflow: 'hidden' }}>
+                    <div key={index} style={{ width: '125px', height: '90px', overflow: 'hidden' }}>
                       <img src={photo} alt={`R-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                     </div>
                   ))}
