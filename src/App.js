@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import html2canvas from 'html2canvas';
 
-// Import beberapa frame custommu dari folder src
+// Import file frame custom kamu dari folder src
 import frame1 from './frame1.png';
 import frame2 from './frame2.png';
 
@@ -14,7 +14,7 @@ function App() {
   const [selectedFrame, setSelectedFrame] = useState(frame1);
   const [frameColor, setFrameColor] = useState(frame1);
 
-  // State untuk jumlah foto pilihan user (default 3 atau 6)
+  // State untuk jumlah foto (3 atau 6)
   const [totalPhotos, setTotalPhotos] = useState(3);
 
   // State Hitung Mundur & Preview Foto
@@ -40,7 +40,7 @@ function App() {
   const startCountdown = () => {
     if (photos.length < totalPhotos && !isCounting) {
       setIsCounting(true);
-      setCountdown(5);
+      setCountdown(3); // Hitung mundur 3 detik
     }
   };
 
@@ -57,6 +57,7 @@ function App() {
       setPhotos(newPhotos);
       setPreviewPhoto(null);
 
+      // Pindah ke halaman frame jika jumlah foto sudah pas sesuai pilihan (3 atau 6)
       if (newPhotos.length === totalPhotos) {
         setStep('frame');
       }
@@ -110,7 +111,6 @@ function App() {
 
           <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', flexWrap: 'wrap', justifyContent: 'center' }}>
             
-            {/* Pilihan Frame 1 */}
             <div 
               onClick={() => setSelectedFrame(frame1)}
               style={{
@@ -127,7 +127,6 @@ function App() {
               <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Frame 1</span>
             </div>
 
-            {/* Pilihan Frame 2 */}
             <div 
               onClick={() => setSelectedFrame(frame2)}
               style={{
@@ -144,7 +143,6 @@ function App() {
               <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Frame 2</span>
             </div>
 
-            {/* Pilihan Warna Polos */}
             <div 
               onClick={() => setSelectedFrame('#ffffff')}
               style={{
@@ -172,7 +170,7 @@ function App() {
         </div>
       )}
 
-      {/* HALAMAN 3: PILIH OPSI 3 FOTO ATAU 6 FOTO */}
+      {/* HALAMAN 3: PILIH 3 FOTO ATAU 6 FOTO */}
       {step === 'select-mode' && (
         <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
           <h2 style={{ color: '#1f2937', marginBottom: '10px' }}>Pilih Mode Photostrip</h2>
@@ -180,7 +178,6 @@ function App() {
 
           <div style={{ display: 'flex', gap: '20px', marginBottom: '35px', flexWrap: 'wrap', justifyContent: 'center' }}>
             
-            {/* Opsi 3 Foto */}
             <div 
               onClick={() => setTotalPhotos(3)}
               style={{
@@ -199,7 +196,6 @@ function App() {
               <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '5px' }}>1 Strip (3 Foto)</p>
             </div>
 
-            {/* Opsi 6 Foto */}
             <div 
               onClick={() => setTotalPhotos(6)}
               style={{
@@ -215,7 +211,7 @@ function App() {
             >
               <div style={{ fontSize: '32px', marginBottom: '10px' }}>📸📸 6x</div>
               <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#333' }}>6 Foto</span>
-              <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '5px' }}>2 Strip Terpisah</p>
+              <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '5px' }}>2 Strip (6 Foto)</p>
             </div>
 
           </div>
@@ -280,7 +276,7 @@ function App() {
         <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflowY: 'auto', padding: '20px', boxSizing: 'border-box' }}>
           <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip Kamu 🎉</h2>
 
-          {/* Kanvas Utama Ukuran 400x600 (Satu Lembar 4R Penuh) */}
+          {/* Kanvas Utama 400x600 (Format 4R) */}
           <div 
             ref={stripRef}
             style={{ 
@@ -292,7 +288,7 @@ function App() {
               overflow: 'hidden'
             }}
           >
-            {/* TAMPILAN 3 FOTO (1 Kolom ke Bawah) */}
+            {/* TAMPILAN 3 FOTO */}
             {totalPhotos === 3 && photos.length > 0 && (
               <div style={{ position: 'absolute', top: '75px', left: '72px', display: 'flex', flexDirection: 'column', gap: '58px', zIndex: 1 }}>
                 {photos.map((photo, index) => (
@@ -307,32 +303,30 @@ function App() {
               </div>
             )}
 
-{           /* TAMPILAN 6 FOTO */}
+            {/* TAMPILAN 6 FOTO (Tersebar Rapi di 6 Lubang Frame 4R) */}
             {totalPhotos === 6 && photos.length > 0 && (
               <div style={{ position: 'absolute', top: '0px', left: '0px', width: '100%', height: '100%', zIndex: 1 }}>
-                
                 {/* Kolom Kiri (Foto 1, 2, 3) */}
-                <div style={{ position: 'absolute', top: '190px', left: '60px', display: 'flex', flexDirection: 'column', gap: '158px' }}>
+                <div style={{ position: 'absolute', top: '185px', left: '53px', display: 'flex', flexDirection: 'column', gap: '155px' }}>
                   {photos.slice(0, 3).map((photo, index) => (
-                    <div key={index} style={{ width: '125px', height: '90px', overflow: 'hidden' }}>
+                    <div key={index} style={{ width: '135px', height: '95px', overflow: 'hidden' }}>
                       <img src={photo} alt={`L-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                     </div>
                   ))}
                 </div>
 
                 {/* Kolom Kanan (Foto 4, 5, 6) */}
-                <div style={{ position: 'absolute', top: '190px', left: '215px', display: 'flex', flexDirection: 'column', gap: '158px' }}>
+                <div style={{ position: 'absolute', top: '185px', left: '212px', display: 'flex', flexDirection: 'column', gap: '155px' }}>
                   {photos.slice(3, 6).map((photo, index) => (
-                    <div key={index} style={{ width: '125px', height: '90px', overflow: 'hidden' }}>
+                    <div key={index} style={{ width: '135px', height: '95px', overflow: 'hidden' }}>
                       <img src={photo} alt={`R-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                     </div>
                   ))}
                 </div>
-
               </div>
             )}
 
-            {/* Layer Gambar Frame Utama (Menutup di Depan Foto) */}
+            {/* Layer Gambar Frame Utama */}
             {!frameColor.startsWith('#') && (
               <img 
                 src={frameColor} 
