@@ -218,10 +218,10 @@ function App() {
         </div>
       )}
 
-      {/* HALAMAN 4: HASIL FOTOSTRIP 4R DENGAN 6 FOTO */}
+{/* HALAMAN 4: HASIL FOTOSTRIP 2 STRIP BERDAMPINGAN */}
       {step === 'frame' && (
         <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflowY: 'auto', padding: '20px', boxSizing: 'border-box' }}>
-          <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip 6 Foto Kamu 🎉</h2>
+          <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip 2 Strip Kamu 🎉</h2>
 
           {/* Kanvas 4R Ukuran 400x600 piksel */}
           <div 
@@ -235,22 +235,44 @@ function App() {
               overflow: 'hidden'
             }}
           >
-            {/* Layer 6 Foto di Belakang Frame */}
+            {/* Layer Foto Menjadi 2 Kolom Strip (Masing-masing 3 Foto) */}
             {photos.length > 0 && (
-              <div style={{ position: 'absolute', top: '45px', left: '42px', display: 'flex', flexDirection: 'column', gap: '12px', zIndex: 1 }}>
-                {photos.map((photo, index) => (
-                  <img 
-                    key={index} 
-                    src={photo} 
-                    alt={`Snap ${index}`} 
-                    style={{ 
-                      width: '316px', 
-                      height: '74px',        /* Tinggi disesuaikan untuk 6 slot foto */
-                      objectFit: 'cover', 
-                      display: 'block' 
-                    }} 
-                  />
-                ))}
+              <div style={{ position: 'absolute', top: '72px', left: '25px', display: 'flex', gap: '15px', zIndex: 1 }}>
+                
+                {/* Strip Kiri (Foto 1, 2, 3) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {photos.slice(0, 3).map((photo, index) => (
+                    <img 
+                      key={index} 
+                      src={photo} 
+                      alt={`Snap Left ${index}`} 
+                      style={{ 
+                        width: '165px', 
+                        height: '135px', 
+                        objectFit: 'cover', 
+                        display: 'block' 
+                      }} 
+                    />
+                  ))}
+                </div>
+
+                {/* Strip Kanan (Foto 4, 5, 6) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {photos.slice(3, 6).map((photo, index) => (
+                    <img 
+                      key={index} 
+                      src={photo} 
+                      alt={`Snap Right ${index}`} 
+                      style={{ 
+                        width: '165px', 
+                        height: '135px', 
+                        objectFit: 'cover', 
+                        display: 'block' 
+                      }} 
+                    />
+                  ))}
+                </div>
+
               </div>
             )}
 
