@@ -275,35 +275,38 @@ function App() {
         </div>
       )}
 
-{/* HALAMAN 5: HASIL FOTOSTRIP */}
+      {/* HALAMAN 5: HASIL FOTOSTRIP TERPISAH SESUAI MODE */}
       {step === 'frame' && (
         <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflowY: 'auto', padding: '20px', boxSizing: 'border-box' }}>
           <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip Kamu 🎉</h2>
 
-          {/* Kanvas 4R */}
+          {/* Kanvas Dinamis: Jika 3 Foto bentuk 1 Strip, Jika 6 Foto tampil 2 Strip Terpisah */}
           <div 
             ref={stripRef}
             style={{ 
               position: 'relative', 
-              width: '400px', 
+              width: totalPhotos === 3 ? '240px' : '460px', /* Kanvas otomatis mengecil untuk 3 foto, melebar untuk 2 strip 6 foto */
               height: '600px', 
               backgroundColor: frameColor.startsWith('#') ? frameColor : '#ffffff', 
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
           >
-            {/* TAMPILAN 3 FOTO (1 Strip Tunggal - Utuh Tidak Terpotong) */}
+            {/* TAMPILAN 3 FOTO (1 Strip Tunggal Mandiri) */}
             {totalPhotos === 3 && photos.length > 0 && (
-              <div style={{ position: 'absolute', top: '40px', left: '60px', display: 'flex', flexDirection: 'column', gap: '14px', zIndex: 1 }}>
+              <div style={{ position: 'absolute', top: '35px', left: '20px', display: 'flex', flexDirection: 'column', gap: '12px', zIndex: 1 }}>
                 {photos.map((photo, index) => (
-                  <div key={index} style={{ width: '280px', height: '155px', backgroundColor: '#000', borderRadius: '8px', overflow: 'hidden' }}>
+                  <div key={index} style={{ width: '200px', height: '150px', backgroundColor: '#000', borderRadius: '4px', overflow: 'hidden' }}>
                     <img 
                       src={photo} 
                       alt={`Snap ${index}`} 
                       style={{ 
                         width: '100%', 
                         height: '100%', 
-                        objectFit: 'contain', /* Mengubah dari cover ke contain agar foto utuh */
+                        objectFit: 'contain', 
                         display: 'block',
                         transform: 'scaleX(-1)'
                       }} 
@@ -313,14 +316,14 @@ function App() {
               </div>
             )}
 
-            {/* TAMPILAN 6 FOTO (2 Strip Terpisah - Utuh Tidak Terpotong) */}
+            {/* TAMPILAN 6 FOTO (Dibuat Menjadi 2 Strip Terpisah yang Berdiri Sendiri dalam 1 Frame Lebar) */}
             {totalPhotos === 6 && photos.length > 0 && (
-              <div style={{ position: 'absolute', top: '40px', left: '20px', display: 'flex', gap: '20px', zIndex: 1 }}>
+              <div style={{ position: 'absolute', top: '35px', left: '20px', display: 'flex', gap: '20px', zIndex: 1 }}>
                 
-                {/* Strip Terpisah 1 (Foto 1, 2, 3) */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '6px', backgroundColor: '#fff', border: '1px dashed #cbd5e1', borderRadius: '6px' }}>
+                {/* Strip Terpisah Pertama (Foto 1, 2, 3) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '8px', backgroundColor: frameColor.startsWith('#') ? '#fff' : 'transparent', border: frameColor.startsWith('#') ? '1px dashed #cbd5e1' : 'none', borderRadius: '6px' }}>
                   {photos.slice(0, 3).map((photo, index) => (
-                    <div key={index} style={{ width: '170px', height: '120px', backgroundColor: '#000', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div key={index} style={{ width: '200px', height: '150px', backgroundColor: '#000', borderRadius: '4px', overflow: 'hidden' }}>
                       <img 
                         src={photo} 
                         alt={`Strip1 Photo ${index}`} 
@@ -330,10 +333,10 @@ function App() {
                   ))}
                 </div>
 
-                {/* Strip Terpisah 2 (Foto 4, 5, 6) */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '6px', backgroundColor: '#fff', border: '1px dashed #cbd5e1', borderRadius: '6px' }}>
+                {/* Strip Terpisah Kedua (Foto 4, 5, 6) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '8px', backgroundColor: frameColor.startsWith('#') ? '#fff' : 'transparent', border: frameColor.startsWith('#') ? '1px dashed #cbd5e1' : 'none', borderRadius: '6px' }}>
                   {photos.slice(3, 6).map((photo, index) => (
-                    <div key={index} style={{ width: '170px', height: '120px', backgroundColor: '#000', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div key={index} style={{ width: '200px', height: '150px', backgroundColor: '#000', borderRadius: '4px', overflow: 'hidden' }}>
                       <img 
                         src={photo} 
                         alt={`Strip2 Photo ${index}`} 
@@ -346,11 +349,11 @@ function App() {
               </div>
             )}
 
-            {/* Layer Gambar Frame di Depan */}
+            {/* Layer Gambar Frame di Depan (Opsional jika pakai frame gambar custom) */}
             {!frameColor.startsWith('#') && (
               <img 
                 src={frameColor} 
-                alt="Custom Frame 4R" 
+                alt="Custom Frame" 
                 style={{
                   position: 'absolute',
                   top: 0,
@@ -366,7 +369,7 @@ function App() {
           </div>
 
           <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-            <button onClick={downloadPhotostrip} style={{ padding: '12px 24px', backgroundColor: '#4f46e5', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>📥 Simpan Foto 4R</button>
+            <button onClick={downloadPhotostrip} style={{ padding: '12px 24px', backgroundColor: '#4f46e5', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>📥 Simpan Foto Strip</button>
             <button onClick={resetAll} style={{ padding: '12px 24px', backgroundColor: '#6b7280', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>🔄 Mulai Dari Awal</button>
           </div>
         </div>
