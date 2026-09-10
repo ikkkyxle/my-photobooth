@@ -303,29 +303,30 @@ function App() {
               </div>
             )}
 
-            {/* TAMPILAN 6 FOTO (Tersebar Rapi di 6 Lubang Frame 4R) */}
+{/* TAMPILAN 6 FOTO */}
             {totalPhotos === 6 && photos.length > 0 && (
               <div style={{ position: 'absolute', top: '0px', left: '0px', width: '100%', height: '100%', zIndex: 1 }}>
+                
                 {/* Kolom Kiri (Foto 1, 2, 3) */}
-                <div style={{ position: 'absolute', top: '185px', left: '53px', display: 'flex', flexDirection: 'column', gap: '155px' }}>
+                <div style={{ position: 'absolute', top: '75px', left: '53px', display: 'flex', flexDirection: 'column', gap: '22px' }}>
                   {photos.slice(0, 3).map((photo, index) => (
-                    <div key={index} style={{ width: '135px', height: '95px', overflow: 'hidden' }}>
+                    <div key={index} style={{ width: '135px', height: '125px', overflow: 'hidden' }}>
                       <img src={photo} alt={`L-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                     </div>
                   ))}
                 </div>
 
                 {/* Kolom Kanan (Foto 4, 5, 6) */}
-                <div style={{ position: 'absolute', top: '185px', left: '212px', display: 'flex', flexDirection: 'column', gap: '155px' }}>
+                <div style={{ position: 'absolute', top: '75px', left: '212px', display: 'flex', flexDirection: 'column', gap: '22px' }}>
                   {photos.slice(3, 6).map((photo, index) => (
-                    <div key={index} style={{ width: '135px', height: '95px', overflow: 'hidden' }}>
+                    <div key={index} style={{ width: '135px', height: '125px', overflow: 'hidden' }}>
                       <img src={photo} alt={`R-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                     </div>
                   ))}
                 </div>
+
               </div>
             )}
-
             {/* Layer Gambar Frame Utama */}
             {!frameColor.startsWith('#') && (
               <img 
