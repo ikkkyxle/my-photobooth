@@ -242,38 +242,26 @@ function App() {
               overflow: 'hidden'
             }}
           >
-          {/* TAMPILAN 6 FOTO */}
+   {/* TAMPILAN 6 FOTO */}
             {photos.length > 0 && (
               <div style={{ position: 'absolute', top: '0px', left: '0px', width: '100%', height: '100%', zIndex: 1 }}>
                 
-                {/* Baris 1 (Foto 1 & 4) */}
-                <div style={{ position: 'absolute', top: '92px', left: '46px', width: '308px', height: '110px', display: 'flex', justifyContent: 'space-between' }}>
-                  <div style={{ width: '135px', height: '110px', overflow: 'hidden' }}>
-                    <img src={photos[0]} alt="L-0" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }} />
-                  </div>
-                  <div style={{ width: '135px', height: '110px', overflow: 'hidden' }}>
-                    <img src={photos[3]} alt="R-0" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }} />
-                  </div>
+                {/* Kolom Kiri (Foto 1, 2, 3) - Sesuaikan untuk Frame 3 */}
+                <div style={{ position: 'absolute', top: '92px', left: '58px', display: 'flex', flexDirection: 'column', gap: '50px' }}>
+                  {photos.slice(0, 3).map((photo, index) => (
+                    <div key={index} style={{ width: '112px', height: '117px', overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                      <img src={photo} alt={`L-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
+                    </div>
+                  ))}
                 </div>
 
-                {/* Baris 2 (Foto 2 & 5) - Naikkan posisi top */}
-                <div style={{ position: 'absolute', top: '235px', left: '46px', width: '308px', height: '110px', display: 'flex', justifyContent: 'space-between' }}>
-                  <div style={{ width: '135px', height: '110px', overflow: 'hidden' }}>
-                    <img src={photos[1]} alt="L-1" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }} />
-                  </div>
-                  <div style={{ width: '135px', height: '110px', overflow: 'hidden' }}>
-                    <img src={photos[4]} alt="R-1" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }} />
-                  </div>
-                </div>
-
-                {/* Baris 3 (Foto 3 & 6) - Naikkan posisi top */}
-                <div style={{ position: 'absolute', top: '378px', left: '46px', width: '308px', height: '110px', display: 'flex', justifyContent: 'space-between' }}>
-                  <div style={{ width: '135px', height: '110px', overflow: 'hidden' }}>
-                    <img src={photos[2]} alt="L-2" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }} />
-                  </div>
-                  <div style={{ width: '135px', height: '110px', overflow: 'hidden' }}>
-                    <img src={photos[5]} alt="R-2" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }} />
-                  </div>
+                {/* Kolom Kanan (Foto 4, 5, 6) - Sesuaikan untuk Frame 3 */}
+                <div style={{ position: 'absolute', top: '92px', left: '231px', display: 'flex', flexDirection: 'column', gap: '50px' }}>
+                  {photos.slice(3, 6).map((photo, index) => (
+                    <div key={index} style={{ width: '112px', height: '117px', overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                      <img src={photo} alt={`R-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
+                    </div>
+                  ))}
                 </div>
 
               </div>
