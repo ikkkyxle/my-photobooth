@@ -196,7 +196,7 @@ function App() {
             >
               <div style={{ fontSize: '32px', marginBottom: '10px' }}>📸 3x</div>
               <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#333' }}>3 Foto</span>
-              <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '5px' }}>1 Kolom Strip</p>
+              <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '5px' }}>1 Strip (3 Foto)</p>
             </div>
 
             {/* Opsi 6 Foto */}
@@ -215,7 +215,7 @@ function App() {
             >
               <div style={{ fontSize: '32px', marginBottom: '10px' }}>📸📸 6x</div>
               <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#333' }}>6 Foto</span>
-              <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '5px' }}>2 Strip Berdampingan</p>
+              <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '5px' }}>2 Strip Terpisah</p>
             </div>
 
           </div>
@@ -275,12 +275,12 @@ function App() {
         </div>
       )}
 
-      {/* HALAMAN 5: HASIL FOTOSTRIP (OTOMATIS MENYESUAIKAN 3 ATAU 6 FOTO) */}
+      {/* HALAMAN 5: HASIL FOTOSTRIP */}
       {step === 'frame' && (
         <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflowY: 'auto', padding: '20px', boxSizing: 'border-box' }}>
           <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip Kamu 🎉</h2>
 
-          {/* Kanvas 4R Ukuran 400x600 piksel */}
+          {/* Kanvas 4R */}
           <div 
             ref={stripRef}
             style={{ 
@@ -292,7 +292,7 @@ function App() {
               overflow: 'hidden'
             }}
           >
-            {/* TAMPILAN JIKA PILIH 3 FOTO (1 Kolom ke bawah) */}
+            {/* TAMPILAN 3 FOTO (1 Strip Tunggal) */}
             {totalPhotos === 3 && photos.length > 0 && (
               <div style={{ position: 'absolute', top: '72px', left: '42px', display: 'flex', flexDirection: 'column', gap: '32px', zIndex: 1 }}>
                 {photos.map((photo, index) => (
@@ -311,17 +311,25 @@ function App() {
               </div>
             )}
 
-            {/* TAMPILAN JIKA PILIH 6 FOTO (2 Strip Berdampingan dengan Jarak Tengah) */}
+            {/* TAMPILAN 6 FOTO (DIPISAH JADI 2 STRIP TERPISAH DENGAN JARAK PEMOTONGAN DI TENGAH) */}
             {totalPhotos === 6 && photos.length > 0 && (
               <div style={{ position: 'absolute', top: '72px', left: '25px', display: 'flex', gap: '30px', zIndex: 1 }}>
                 
-                {/* Strip Kiri (Foto 1, 2, 3) */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {/* Strip Terpisah 1 (Foto 1, 2, 3) */}
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '12px', 
+                  padding: '8px', 
+                  backgroundColor: frameColor.startsWith('#') ? '#fff' : 'transparent', 
+                  border: frameColor.startsWith('#') ? '1px dashed #cbd5e1' : 'none', 
+                  borderRadius: '6px' 
+                }}>
                   {photos.slice(0, 3).map((photo, index) => (
                     <img 
                       key={index} 
                       src={photo} 
-                      alt={`Snap Left ${index}`} 
+                      alt={`Strip1 Photo ${index}`} 
                       style={{ 
                         width: '155px', 
                         height: '135px', 
@@ -332,13 +340,21 @@ function App() {
                   ))}
                 </div>
 
-                {/* Strip Kanan (Foto 4, 5, 6) */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {/* Strip Terpisah 2 (Foto 4, 5, 6) */}
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '12px', 
+                  padding: '8px', 
+                  backgroundColor: frameColor.startsWith('#') ? '#fff' : 'transparent', 
+                  border: frameColor.startsWith('#') ? '1px dashed #cbd5e1' : 'none', 
+                  borderRadius: '6px' 
+                }}>
                   {photos.slice(3, 6).map((photo, index) => (
                     <img 
                       key={index} 
                       src={photo} 
-                      alt={`Snap Right ${index}`} 
+                      alt={`Strip2 Photo ${index}`} 
                       style={{ 
                         width: '155px', 
                         height: '135px', 
@@ -352,7 +368,7 @@ function App() {
               </div>
             )}
 
-            {/* Layer Gambar Frame di Depan */}
+            {/* Layer Gambar Frame di Depan (Jika pakai frame gambar custom) */}
             {!frameColor.startsWith('#') && (
               <img 
                 src={frameColor} 
