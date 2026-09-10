@@ -275,7 +275,7 @@ function App() {
         </div>
       )}
 
-      {/* HALAMAN 5: HASIL FOTOSTRIP */}
+{/* HALAMAN 5: HASIL FOTOSTRIP */}
       {step === 'frame' && (
         <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflowY: 'auto', padding: '20px', boxSizing: 'border-box' }}>
           <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip Kamu 🎉</h2>
@@ -292,20 +292,20 @@ function App() {
               overflow: 'hidden'
             }}
           >
-          {/* TAMPILAN 3 FOTO (1 Strip Tunggal dengan Rasio Pas) */}
+            {/* TAMPILAN 3 FOTO (1 Strip Tunggal - Utuh Tidak Terpotong) */}
             {totalPhotos === 3 && photos.length > 0 && (
-              <div style={{ position: 'absolute', top: '50px', left: '85px', display: 'flex', flexDirection: 'column', gap: '15px', zIndex: 1 }}>
+              <div style={{ position: 'absolute', top: '40px', left: '60px', display: 'flex', flexDirection: 'column', gap: '14px', zIndex: 1 }}>
                 {photos.map((photo, index) => (
-                  <div key={index} style={{ width: '230px', height: '150px', overflow: 'hidden', borderRadius: '4px' }}>
+                  <div key={index} style={{ width: '280px', height: '155px', backgroundColor: '#000', borderRadius: '8px', overflow: 'hidden' }}>
                     <img 
                       src={photo} 
                       alt={`Snap ${index}`} 
                       style={{ 
                         width: '100%', 
                         height: '100%', 
-                        objectFit: 'cover',   /* Ini kunci agar foto tidak gepeng */
+                        objectFit: 'contain', /* Mengubah dari cover ke contain agar foto utuh */
                         display: 'block',
-                        transform: 'scaleX(-1)' /* Efek cermin supaya natural */
+                        transform: 'scaleX(-1)'
                       }} 
                     />
                   </div>
@@ -313,31 +313,31 @@ function App() {
               </div>
             )}
 
-{/* TAMPILAN 6 FOTO (2 Strip Terpisah) */}
+            {/* TAMPILAN 6 FOTO (2 Strip Terpisah - Utuh Tidak Terpotong) */}
             {totalPhotos === 6 && photos.length > 0 && (
-              <div style={{ position: 'absolute', top: '50px', left: '25px', display: 'flex', gap: '20px', zIndex: 1 }}>
+              <div style={{ position: 'absolute', top: '40px', left: '20px', display: 'flex', gap: '20px', zIndex: 1 }}>
                 
                 {/* Strip Terpisah 1 (Foto 1, 2, 3) */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '8px', backgroundColor: '#fff', border: '1px dashed #cbd5e1', borderRadius: '6px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '6px', backgroundColor: '#fff', border: '1px dashed #cbd5e1', borderRadius: '6px' }}>
                   {photos.slice(0, 3).map((photo, index) => (
-                    <div key={index} style={{ width: '165px', height: '120px', overflow: 'hidden', borderRadius: '4px' }}>
+                    <div key={index} style={{ width: '170px', height: '120px', backgroundColor: '#000', borderRadius: '4px', overflow: 'hidden' }}>
                       <img 
                         src={photo} 
                         alt={`Strip1 Photo ${index}`} 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} 
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', transform: 'scaleX(-1)' }} 
                       />
                     </div>
                   ))}
                 </div>
 
                 {/* Strip Terpisah 2 (Foto 4, 5, 6) */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '8px', backgroundColor: '#fff', border: '1px dashed #cbd5e1', borderRadius: '6px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '6px', backgroundColor: '#fff', border: '1px dashed #cbd5e1', borderRadius: '6px' }}>
                   {photos.slice(3, 6).map((photo, index) => (
-                    <div key={index} style={{ width: '165px', height: '120px', overflow: 'hidden', borderRadius: '4px' }}>
+                    <div key={index} style={{ width: '170px', height: '120px', backgroundColor: '#000', borderRadius: '4px', overflow: 'hidden' }}>
                       <img 
                         src={photo} 
                         alt={`Strip2 Photo ${index}`} 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} 
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', transform: 'scaleX(-1)' }} 
                       />
                     </div>
                   ))}
@@ -346,7 +346,7 @@ function App() {
               </div>
             )}
 
-            {/* Layer Gambar Frame di Depan (Jika pakai frame gambar custom) */}
+            {/* Layer Gambar Frame di Depan */}
             {!frameColor.startsWith('#') && (
               <img 
                 src={frameColor} 
@@ -364,6 +364,7 @@ function App() {
               />
             )}
           </div>
+
           <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
             <button onClick={downloadPhotostrip} style={{ padding: '12px 24px', backgroundColor: '#4f46e5', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>📥 Simpan Foto 4R</button>
             <button onClick={resetAll} style={{ padding: '12px 24px', backgroundColor: '#6b7280', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>🔄 Mulai Dari Awal</button>
