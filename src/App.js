@@ -242,26 +242,38 @@ function App() {
               overflow: 'hidden'
             }}
           >
-   {/* TAMPILAN 6 FOTO */}
+        {/* TAMPILAN 6 FOTO */}
             {photos.length > 0 && (
               <div style={{ position: 'absolute', top: '0px', left: '0px', width: '100%', height: '100%', zIndex: 1 }}>
                 
-                {/* Kolom Kiri (Foto 1, 2, 3) - Sesuaikan untuk Frame 3 */}
-                <div style={{ position: 'absolute', top: '92px', left: '58px', display: 'flex', flexDirection: 'column', gap: '50px' }}>
-                  {photos.slice(0, 3).map((photo, index) => (
-                    <div key={index} style={{ width: '112px', height: '117px', overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <img src={photo} alt={`L-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                    </div>
-                  ))}
+                {/* Kotak 1 (Kiri Atas) */}
+                <div style={{ position: 'absolute', top: '78px', left: '72px', width: '121px', height: '118px', overflow: 'hidden' }}>
+                  <img src={photos[0]} alt="0" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                 </div>
 
-                {/* Kolom Kanan (Foto 4, 5, 6) - Sesuaikan untuk Frame 3 */}
-                <div style={{ position: 'absolute', top: '92px', left: '231px', display: 'flex', flexDirection: 'column', gap: '50px' }}>
-                  {photos.slice(3, 6).map((photo, index) => (
-                    <div key={index} style={{ width: '112px', height: '117px', overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <img src={photo} alt={`R-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                    </div>
-                  ))}
+                {/* Kotak 2 (Kanan Atas) */}
+                <div style={{ position: 'absolute', top: '78px', left: '211px', width: '121px', height: '118px', overflow: 'hidden' }}>
+                  <img src={photos[3]} alt="3" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
+                </div>
+
+                {/* Kotak 3 (Kiri Tengah) */}
+                <div style={{ position: 'absolute', top: '221px', left: '72px', width: '121px', height: '118px', overflow: 'hidden' }}>
+                  <img src={photos[1]} alt="1" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
+                </div>
+
+                {/* Kotak 4 (Kanan Tengah) */}
+                <div style={{ position: 'absolute', top: '221px', left: '211px', width: '121px', height: '118px', overflow: 'hidden' }}>
+                  <img src={photos[4]} alt="4" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
+                </div>
+
+                {/* Kotak 5 (Kiri Bawah) */}
+                <div style={{ position: 'absolute', top: '364px', left: '72px', width: '121px', height: '118px', overflow: 'hidden' }}>
+                  <img src={photos[2]} alt="2" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
+                </div>
+
+                {/* Kotak 6 (Kanan Bawah) */}
+                <div style={{ position: 'absolute', top: '364px', left: '211px', width: '121px', height: '118px', overflow: 'hidden' }}>
+                  <img src={photos[5]} alt="5" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                 </div>
 
               </div>
