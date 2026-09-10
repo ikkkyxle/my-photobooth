@@ -242,26 +242,38 @@ function App() {
               overflow: 'hidden'
             }}
           >
-{/* TAMPILAN 6 FOTO */}
+        {/* TAMPILAN 6 FOTO */}
             {photos.length > 0 && (
               <div style={{ position: 'absolute', top: '0px', left: '0px', width: '100%', height: '100%', zIndex: 1 }}>
                 
-                {/* Kolom Kiri (Foto 1, 2, 3) - Digeser ke kiri */}
-                <div style={{ position: 'absolute', top: '75px', left: '55px', display: 'flex', flexDirection: 'column', gap: '56px' }}>
-                  {photos.slice(0, 3).map((photo, index) => (
-                    <div key={index} style={{ width: '124px', height: '104px', overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <img src={photo} alt={`L-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                    </div>
-                  ))}
+                {/* Baris 1 (Foto 1 & 4) */}
+                <div style={{ position: 'absolute', top: '75px', left: '46px', width: '308px', height: '105px', display: 'flex', justifyContent: 'space-between' }}>
+                  <div style={{ width: '135px', height: '105px', overflow: 'hidden' }}>
+                    <img src={photos[0]} alt="L-0" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }} />
+                  </div>
+                  <div style={{ width: '135px', height: '105px', overflow: 'hidden' }}>
+                    <img src={photos[3]} alt="R-0" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }} />
+                  </div>
                 </div>
 
-                {/* Kolom Kanan (Foto 4, 5, 6) */}
-                <div style={{ position: 'absolute', top: '75px', left: '220px', display: 'flex', flexDirection: 'column', gap: '56px' }}>
-                  {photos.slice(3, 6).map((photo, index) => (
-                    <div key={index} style={{ width: '124px', height: '104px', overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <img src={photo} alt={`R-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                    </div>
-                  ))}
+                {/* Baris 2 (Foto 2 & 5) */}
+                <div style={{ position: 'absolute', top: '235px', left: '46px', width: '308px', height: '105px', display: 'flex', justifyContent: 'space-between' }}>
+                  <div style={{ width: '135px', height: '105px', overflow: 'hidden' }}>
+                    <img src={photos[1]} alt="L-1" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }} />
+                  </div>
+                  <div style={{ width: '135px', height: '105px', overflow: 'hidden' }}>
+                    <img src={photos[4]} alt="R-1" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }} />
+                  </div>
+                </div>
+
+                {/* Baris 3 (Foto 3 & 6) */}
+                <div style={{ position: 'absolute', top: '395px', left: '46px', width: '308px', height: '105px', display: 'flex', justifyContent: 'space-between' }}>
+                  <div style={{ width: '135px', height: '105px', overflow: 'hidden' }}>
+                    <img src={photos[2]} alt="L-2" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }} />
+                  </div>
+                  <div style={{ width: '135px', height: '105px', overflow: 'hidden' }}>
+                    <img src={photos[5]} alt="R-2" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }} />
+                  </div>
                 </div>
 
               </div>
