@@ -218,8 +218,7 @@ function App() {
         </div>
       )}
 
-      {/* HALAMAN 4: HASIL FOTOSTRIP */}
-      {step === 'frame' && (
+{step === 'frame' && (
         <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflowY: 'auto', padding: '20px', boxSizing: 'border-box' }}>
           <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip Kamu 🎉</h2>
 
@@ -227,15 +226,21 @@ function App() {
             ref={stripRef}
             style={{ 
               position: 'relative', 
-              display: 'inline-block', 
+              width: '320px',
+              height: '480px',
               backgroundColor: frameColor.startsWith('#') ? frameColor : '#ffffff', 
-              padding: '20px 20px 30px 20px', 
+              padding: '25px', 
               borderRadius: '8px',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px'
             }}
           >
-            {/* Menampilkan Gambar Frame Custom Jika Dipilih */}
+            {/* Menampilkan Gambar Frame Custom 4R */}
             {!frameColor.startsWith('#') && (
               <img 
                 src={frameColor} 
@@ -246,7 +251,7 @@ function App() {
                   left: 0,
                   width: '100%',
                   height: '100%',
-                  objectFit: 'cover',
+                  objectFit: 'fill',
                   pointerEvents: 'none',
                   zIndex: 10
                 }}
@@ -254,14 +259,20 @@ function App() {
             )}
 
             {photos.map((photo, index) => (
-              <div key={index} style={{ marginBottom: '12px', position: 'relative', zIndex: 1 }}>
-                <img src={photo} alt={`Snap ${index}`} style={{ width: '200px', borderRadius: '4px', display: 'block' }} />
+              <div key={index} style={{ position: 'relative', zIndex: 1 }}>
+                <img 
+                  src={photo} 
+                  alt={`Snap ${index}`} 
+                  style={{ 
+                    width: '270px', 
+                    height: '125px', 
+                    objectFit: 'cover', 
+                    borderRadius: '4px', 
+                    display: 'block' 
+                  }} 
+                />
               </div>
             ))}
-            
-            <div style={{ marginTop: '15px', fontSize: '12px', fontWeight: 'bold', color: '#333', letterSpacing: '2px', position: 'relative', zIndex: 1, textAlign: 'center' }}>
-              SNAPBOOTH
-            </div>
           </div>
 
           <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
