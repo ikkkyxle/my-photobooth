@@ -163,7 +163,7 @@ function App() {
               }}
             >
               <div style={{ width: '96px', height: '210px', backgroundColor: '#ffffff', border: '1px dashed #cbd5e1', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px auto', fontSize: '24px' }}>
-                ⚪
+                🖼️
               </div>
               <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#374151' }}>Polos Putih</span>
             </div>
