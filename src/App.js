@@ -275,28 +275,28 @@ function App() {
         </div>
       )}
 
-        {/* HALAMAN 5: HASIL FOTOSTRIP */}
+      {/* HALAMAN 5: HASIL FOTOSTRIP */}
       {step === 'frame' && (
         <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflowY: 'auto', padding: '20px', boxSizing: 'border-box' }}>
           <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip Kamu 🎉</h2>
 
-          {/* Kanvas Utama Ukuran 400x600 (Standar 4R / 1 Strip) */}
+          {/* Kanvas Utama Ukuran 400x600 (Satu Lembar 4R Penuh) */}
           <div 
             ref={stripRef}
             style={{ 
               position: 'relative', 
-              width: totalPhotos === 3 ? '350px' : '440px', 
+              width: '400px', 
               height: '600px', 
-              backgroundColor: frameColor.startsWith('#') ? frameColor : 'transparent', 
+              backgroundColor: frameColor.startsWith('#') ? frameColor : '#ffffff', 
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
               overflow: 'hidden'
             }}
           >
-            {/* TAMPILAN 3 FOTO (Pas Masuk ke Lubang Frame1) */}
+            {/* TAMPILAN 3 FOTO (1 Kolom ke Bawah) */}
             {totalPhotos === 3 && photos.length > 0 && (
               <div style={{ position: 'absolute', top: '75px', left: '72px', display: 'flex', flexDirection: 'column', gap: '58px', zIndex: 1 }}>
                 {photos.map((photo, index) => (
-                  <div key={index} style={{ width: '206px', height: '125px', overflow: 'hidden' }}>
+                  <div key={index} style={{ width: '256px', height: '125px', overflow: 'hidden' }}>
                     <img 
                       src={photo} 
                       alt={`Snap ${index}`} 
@@ -307,46 +307,36 @@ function App() {
               </div>
             )}
 
-            {/* TAMPILAN 6 FOTO (DIPISAH JADI 2 STRIP BERDAMPINGAN, MASING-MASING PAKAI FRAME) */}
+            {/* TAMPILAN 6 FOTO (Langsung 6 Foto di Dalam 1 Kanvas 4R Sesuai Lubang Frame Asli) */}
             {totalPhotos === 6 && photos.length > 0 && (
-              <div style={{ position: 'absolute', top: '75px', left: '20px', display: 'flex', gap: '20px', zIndex: 1 }}>
+              <div style={{ position: 'absolute', top: '0px', left: '0px', width: '100%', height: '100%', zIndex: 1 }}>
                 
-                {/* Strip Kiri + Frame */}
-                <div style={{ position: 'relative', width: '190px', height: '510px' }}>
-                  <div style={{ position: 'absolute', top: '0px', left: '39px', display: 'flex', flexDirection: 'column', gap: '58px', zIndex: 1 }}>
-                    {photos.slice(0, 3).map((photo, index) => (
-                      <div key={index} style={{ width: '112px', height: '125px', overflow: 'hidden' }}>
-                        <img src={photo} alt={`L-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                      </div>
-                    ))}
-                  </div>
-                  {!frameColor.startsWith('#') && (
-                    <img src={frameColor} alt="Frame Left" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'fill', pointerEvents: 'none', zIndex: 10 }} />
-                  )}
+                {/* Kolom Kiri (Foto 1, 2, 3) - Sesuaikan koordinat left & top jika kurang pas */}
+                <div style={{ position: 'absolute', top: '165px', left: '44px', display: 'flex', flexDirection: 'column', gap: '115px' }}>
+                  {photos.slice(0, 3).map((photo, index) => (
+                    <div key={index} style={{ width: '115px', height: '100px', overflow: 'hidden' }}>
+                      <img src={photo} alt={`L-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
+                    </div>
+                  ))}
                 </div>
 
-                {/* Strip Kanan + Frame */}
-                <div style={{ position: 'relative', width: '190px', height: '510px' }}>
-                  <div style={{ position: 'absolute', top: '0px', left: '39px', display: 'flex', flexDirection: 'column', gap: '58px', zIndex: 1 }}>
-                    {photos.slice(3, 6).map((photo, index) => (
-                      <div key={index} style={{ width: '112px', height: '125px', overflow: 'hidden' }}>
-                        <img src={photo} alt={`R-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                      </div>
-                    ))}
-                  </div>
-                  {!frameColor.startsWith('#') && (
-                    <img src={frameColor} alt="Frame Right" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'fill', pointerEvents: 'none', zIndex: 10 }} />
-                  )}
+                {/* Kolom Kanan (Foto 4, 5, 6) */}
+                <div style={{ position: 'absolute', top: '165px', left: '241px', display: 'flex', flexDirection: 'column', gap: '115px' }}>
+                  {photos.slice(3, 6).map((photo, index) => (
+                    <div key={index} style={{ width: '115px', height: '100px', overflow: 'hidden' }}>
+                      <img src={photo} alt={`R-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
+                    </div>
+                  ))}
                 </div>
 
               </div>
             )}
 
-            {/* Layer Gambar Frame Utama (Untuk Mode 3 Foto) */}
-            {totalPhotos === 3 && !frameColor.startsWith('#') && (
+            {/* Layer Gambar Frame Utama (Menutup di Depan Foto) */}
+            {!frameColor.startsWith('#') && (
               <img 
                 src={frameColor} 
-                alt="Custom Frame 3" 
+                alt="Custom Frame 4R" 
                 style={{
                   position: 'absolute',
                   top: 0,
@@ -362,7 +352,7 @@ function App() {
           </div>
 
           <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-            <button onClick={downloadPhotostrip} style={{ padding: '12px 24px', backgroundColor: '#4f46e5', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>📥 Simpan Foto</button>
+            <button onClick={downloadPhotostrip} style={{ padding: '12px 24px', backgroundColor: '#4f46e5', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>📥 Simpan Foto 4R</button>
             <button onClick={resetAll} style={{ padding: '12px 24px', backgroundColor: '#6b7280', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>🔄 Mulai Dari Awal</button>
           </div>
         </div>
