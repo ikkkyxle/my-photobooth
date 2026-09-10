@@ -5,6 +5,8 @@ import html2canvas from 'html2canvas';
 // Import file frame custom kamu dari folder src
 import frame1 from './frame1.png';
 import frame2 from './frame2.png';
+import frame3 from './frame3.png'; 
+import frame4 from './frame4.png'; 
 
 function App() {
   const [step, setStep] = useState('welcome');
@@ -142,6 +144,38 @@ function App() {
               <img src={frame2} alt="Frame 2" style={{ width: '100px', height: '200px', objectFit: 'cover', borderRadius: '4px', display: 'block', marginBottom: '8px' }} />
               <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Frame 2</span>
             </div>
+
+            <div 
+           onClick={() => setSelectedFrame(frame3)}
+           style={{
+             cursor: 'pointer',
+             border: selectedFrame === frame3 ? '4px solid #4f46e5' : '2px solid #ccc',
+             borderRadius: '10px',
+             padding: '10px',
+             backgroundColor: '#fff',
+             textAlign: 'center',
+             boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+           }}
+         >
+           <img src={frame3} alt="Frame 3" style={{ width: '100px', height: '200px', objectFit: 'cover', borderRadius: '4px', display: 'block', marginBottom: '8px' }} />
+           <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Frame 3</span>
+         </div>
+
+         <div 
+           onClick={() => setSelectedFrame(frame4)}
+           style={{
+             cursor: 'pointer',
+             border: selectedFrame === frame4 ? '4px solid #4f46e5' : '2px solid #ccc',
+             borderRadius: '10px',
+             padding: '10px',
+             backgroundColor: '#fff',
+             textAlign: 'center',
+             boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+           }}
+         >
+           <img src={frame4} alt="Frame 4" style={{ width: '100px', height: '200px', objectFit: 'cover', borderRadius: '4px', display: 'block', marginBottom: '8px' }} />
+           <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Frame 4</span>
+         </div>
 
             <div 
               onClick={() => setSelectedFrame('#ffffff')}
@@ -303,7 +337,7 @@ function App() {
               </div>
             )}
 
-{/* TAMPILAN 6 FOTO */}
+          {/* TAMPILAN 6 FOTO */}
             {totalPhotos === 6 && photos.length > 0 && (
               <div style={{ position: 'absolute', top: '0px', left: '0px', width: '100%', height: '100%', zIndex: 1 }}>
                 
