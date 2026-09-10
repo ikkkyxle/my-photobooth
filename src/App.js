@@ -242,23 +242,23 @@ function App() {
               overflow: 'hidden'
             }}
           >
-            {/* TAMPILAN 6 FOTO */}
+{/* TAMPILAN 6 FOTO */}
             {photos.length > 0 && (
               <div style={{ position: 'absolute', top: '0px', left: '0px', width: '100%', height: '100%', zIndex: 1 }}>
                 
                 {/* Kolom Kiri (Foto 1, 2, 3) */}
-                <div style={{ position: 'absolute', top: '78px', left: '76px', display: 'flex', flexDirection: 'column', gap: '64px' }}>
+                <div style={{ position: 'absolute', top: '78px', left: '60px', display: 'flex', flexDirection: 'column', gap: '58px' }}>
                   {photos.slice(0, 3).map((photo, index) => (
-                    <div key={index} style={{ width: '118px', height: '118px', overflow: 'hidden' }}>
+                    <div key={index} style={{ width: '135px', height: '96px', overflow: 'hidden' }}>
                       <img src={photo} alt={`L-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                     </div>
                   ))}
                 </div>
 
                 {/* Kolom Kanan (Foto 4, 5, 6) */}
-                <div style={{ position: 'absolute', top: '78px', left: '226px', display: 'flex', flexDirection: 'column', gap: '64px' }}>
+                <div style={{ position: 'absolute', top: '78px', left: '206px', display: 'flex', flexDirection: 'column', gap: '58px' }}>
                   {photos.slice(3, 6).map((photo, index) => (
-                    <div key={index} style={{ width: '118px', height: '118px', overflow: 'hidden' }}>
+                    <div key={index} style={{ width: '135px', height: '96px', overflow: 'hidden' }}>
                       <img src={photo} alt={`R-${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                     </div>
                   ))}
