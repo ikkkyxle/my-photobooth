@@ -107,7 +107,6 @@ function App() {
           <h2 style={{ color: '#1f2937', marginBottom: '10px' }}>Pilih Frame Favoritmu</h2>
           <p style={{ color: '#6b7280', marginBottom: '25px' }}>Klik salah satu pilihan frame di bawah ini untuk melihat preview-nya:</p>
 
-          {/* Kotak Pilihan dengan Preview Gambar */}
           <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', flexWrap: 'wrap', justifyContent: 'center' }}>
             
             {/* Pilihan Frame 1 */}
@@ -218,33 +217,47 @@ function App() {
         </div>
       )}
 
-{step === 'frame' && (
+      {/* HALAMAN 4: HASIL FOTOSTRIP 4R PRESISI */}
+      {step === 'frame' && (
         <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflowY: 'auto', padding: '20px', boxSizing: 'border-box' }}>
-          <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip Kamu 🎉</h2>
+          <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip 4R Kamu 🎉</h2>
 
+          {/* Kanvas 4R Ukuran 400x600 piksel */}
           <div 
             ref={stripRef}
             style={{ 
               position: 'relative', 
-              width: '320px',
-              height: '480px',
+              width: '400px', 
+              height: '600px', 
               backgroundColor: frameColor.startsWith('#') ? frameColor : '#ffffff', 
-              padding: '25px', 
-              borderRadius: '8px',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-              overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px'
+              overflow: 'hidden'
             }}
           >
-            {/* Menampilkan Gambar Frame Custom 4R */}
+            {/* Layer Foto-Foto di Belakang Frame */}
+            {photos.length > 0 && (
+              <div style={{ position: 'absolute', top: '72px', left: '42px', display: 'flex', flexDirection: 'column', gap: '32px', zIndex: 1 }}>
+                {photos.map((photo, index) => (
+                  <img 
+                    key={index} 
+                    src={photo} 
+                    alt={`Snap ${index}`} 
+                    style={{ 
+                      width: '316px', 
+                      height: '135px', 
+                      objectFit: 'cover', 
+                      display: 'block' 
+                    }} 
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Layer Gambar Frame di Depan (Transparan di tengah) */}
             {!frameColor.startsWith('#') && (
               <img 
                 src={frameColor} 
-                alt="Custom Frame" 
+                alt="Custom Frame 4R" 
                 style={{
                   position: 'absolute',
                   top: 0,
@@ -257,26 +270,10 @@ function App() {
                 }}
               />
             )}
-
-            {photos.map((photo, index) => (
-              <div key={index} style={{ position: 'relative', zIndex: 1 }}>
-                <img 
-                  src={photo} 
-                  alt={`Snap ${index}`} 
-                  style={{ 
-                    width: '270px', 
-                    height: '125px', 
-                    objectFit: 'cover', 
-                    borderRadius: '4px', 
-                    display: 'block' 
-                  }} 
-                />
-              </div>
-            ))}
           </div>
 
           <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-            <button onClick={downloadPhotostrip} style={{ padding: '12px 24px', backgroundColor: '#4f46e5', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>📥 Simpan Foto</button>
+            <button onClick={downloadPhotostrip} style={{ padding: '12px 24px', backgroundColor: '#4f46e5', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>📥 Simpan Foto 4R</button>
             <button onClick={resetAll} style={{ padding: '12px 24px', backgroundColor: '#6b7280', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>🔄 Mulai Dari Awal</button>
           </div>
         </div>
