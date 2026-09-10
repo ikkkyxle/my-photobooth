@@ -105,99 +105,75 @@ function App() {
         </div>
       )}
 
-      {/* HALAMAN 2: PILIH FRAME */}
-      {step === 'select-frame' && (
+{step === 'select-frame' && (
         <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box', overflowY: 'auto' }}>
-          <h2 style={{ color: '#1f2937', marginBottom: '10px' }}>Pilih Frame Favoritmu</h2>
-          <p style={{ color: '#6b7280', marginBottom: '25px' }}>Klik salah satu pilihan frame di bawah ini:</p>
+          <h2 style={{ color: '#1f2937', marginBottom: '8px', fontSize: '26px' }}>Pilih Frame Favoritmu ✨</h2>
+          <p style={{ color: '#6b7280', marginBottom: '25px', fontSize: '15px' }}>Klik salah satu desain frame di bawah ini:</p>
 
           <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', flexWrap: 'wrap', justifyContent: 'center' }}>
             
-            <div 
-              onClick={() => setSelectedFrame(frame1)}
-              style={{
-                cursor: 'pointer',
-                border: selectedFrame === frame1 ? '4px solid #4f46e5' : '2px solid #ccc',
-                borderRadius: '10px',
-                padding: '10px',
-                backgroundColor: '#fff',
-                textAlign: 'center',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-              }}
-            >
-              <img src={frame1} alt="Frame 1" style={{ width: '100px', height: '200px', objectFit: 'cover', borderRadius: '4px', display: 'block', marginBottom: '8px' }} />
-              <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Frame 1</span>
-            </div>
+            {[
+              { id: 'frame1', name: 'Frame 1', src: frame1 },
+              { id: 'frame2', name: 'Frame 2', src: frame2 },
+              { id: 'frame3', name: 'Frame 3', src: frame3 },
+              { id: 'frame4', name: 'Frame 4', src: frame4 }
+            ].map((item) => (
+              <div 
+                key={item.id}
+                onClick={() => setSelectedFrame(item.src)}
+                style={{
+                  cursor: 'pointer',
+                  border: selectedFrame === item.src ? '4px solid #4f46e5' : '2px solid #e5e7eb',
+                  borderRadius: '14px',
+                  padding: '12px',
+                  backgroundColor: '#ffffff',
+                  textAlign: 'center',
+                  boxShadow: selectedFrame === item.src ? '0 10px 25px rgba(79, 70, 229, 0.25)' : '0 4px 12px rgba(0,0,0,0.06)',
+                  transition: 'all 0.2s ease',
+                  width: '120px'
+                }}
+              >
+                {/* Kotak Preview Frame dengan object-fit: contain agar tampil FULL */}
+                <div style={{ width: '96px', height: '210px', backgroundColor: '#f8fafc', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px auto' }}>
+                  <img 
+                    src={item.src} 
+                    alt={item.name} 
+                    style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} 
+                  />
+                </div>
+                <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#374151' }}>{item.name}</span>
+              </div>
+            ))}
 
-            <div 
-              onClick={() => setSelectedFrame(frame2)}
-              style={{
-                cursor: 'pointer',
-                border: selectedFrame === frame2 ? '4px solid #4f46e5' : '2px solid #ccc',
-                borderRadius: '10px',
-                padding: '10px',
-                backgroundColor: '#fff',
-                textAlign: 'center',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-              }}
-            >
-              <img src={frame2} alt="Frame 2" style={{ width: '100px', height: '200px', objectFit: 'cover', borderRadius: '4px', display: 'block', marginBottom: '8px' }} />
-              <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Frame 2</span>
-            </div>
-
-            <div 
-           onClick={() => setSelectedFrame(frame3)}
-           style={{
-             cursor: 'pointer',
-             border: selectedFrame === frame3 ? '4px solid #4f46e5' : '2px solid #ccc',
-             borderRadius: '10px',
-             padding: '10px',
-             backgroundColor: '#fff',
-             textAlign: 'center',
-             boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-           }}
-         >
-           <img src={frame3} alt="Frame 3" style={{ width: '100px', height: '200px', objectFit: 'cover', borderRadius: '4px', display: 'block', marginBottom: '8px' }} />
-           <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Frame 3</span>
-         </div>
-
-         <div 
-           onClick={() => setSelectedFrame(frame4)}
-           style={{
-             cursor: 'pointer',
-             border: selectedFrame === frame4 ? '4px solid #4f46e5' : '2px solid #ccc',
-             borderRadius: '10px',
-             padding: '10px',
-             backgroundColor: '#fff',
-             textAlign: 'center',
-             boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-           }}
-         >
-           <img src={frame4} alt="Frame 4" style={{ width: '100px', height: '200px', objectFit: 'cover', borderRadius: '4px', display: 'block', marginBottom: '8px' }} />
-           <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Frame 4</span>
-         </div>
-
+            {/* Opsi Polos Putih */}
             <div 
               onClick={() => setSelectedFrame('#ffffff')}
               style={{
                 cursor: 'pointer',
-                border: selectedFrame === '#ffffff' ? '4px solid #4f46e5' : '2px solid #ccc',
-                borderRadius: '10px',
-                padding: '10px',
-                backgroundColor: '#fff',
+                border: selectedFrame === '#ffffff' ? '4px solid #4f46e5' : '2px solid #e5e7eb',
+                borderRadius: '14px',
+                padding: '12px',
+                backgroundColor: '#ffffff',
                 textAlign: 'center',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+                boxShadow: selectedFrame === '#ffffff' ? '0 10px 25px rgba(79, 70, 229, 0.25)' : '0 4px 12px rgba(0,0,0,0.06)',
+                width: '120px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'space-between'
               }}
             >
-              <div style={{ width: '80px', height: '120px', backgroundColor: '#ffffff', border: '1px solid #ddd', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>⚪</div>
-              <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Polos Putih</span>
+              <div style={{ width: '96px', height: '210px', backgroundColor: '#ffffff', border: '1px dashed #cbd5e1', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px auto', fontSize: '24px' }}>
+                ⚪
+              </div>
+              <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#374151' }}>Polos Putih</span>
             </div>
 
           </div>
 
           <button 
             onClick={() => { setFrameColor(selectedFrame); setStep('select-mode'); }}
-            style={{ padding: '14px 32px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}
+            style={{ padding: '14px 36px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}
           >
             Lanjut Pilih Mode ➡️
           </button>
