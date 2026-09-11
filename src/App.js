@@ -260,9 +260,9 @@ function App() {
               />
             )}
 
-            {/* TAMPILAN 6 FOTO */}
+        {/* TAMPILAN 6 FOTO */}
             {photos.length > 0 && (
-              <div style={{ position: 'absolute', top: '50px', left: '35px', width: '330px', height: '500px', display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr 1fr', gap: '15px 12px', zIndex: 1 }}>
+              <div style={{ position: 'absolute', top: '50px', left: '35px', width: '330px', height: '500px', display: 'grid', gridTemplateColumns: '131px 131px', gridTemplateRows: '132px 145px 145px', gap: '14px 12px', zIndex: 1 }}>
                 {photos.map((photo, index) => (
                   <div key={index} style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: '4px' }}>
                     <img 
