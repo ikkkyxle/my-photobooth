@@ -42,7 +42,7 @@ function App() {
   const startCountdown = () => {
     if (photos.length < totalPhotos && !isCounting) {
       setIsCounting(true);
-      setCountdown(3); // Hitung mundur 3 detik
+      setCountdown(5); // Hitung mundur 3 detik
     }
   };
 
