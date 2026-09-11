@@ -1,105 +1,228 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Webcam from 'react-webcam';
-import html2canvas from 'html2canvas';
 
-// Import file frame custom kamu dari folder src
-import frame1 from './frame1.png';
-import frame2 from './frame2.png';
-import frame3 from './frame3.png';
-import frame4 from './frame4.png';
+import { FRAMES, PLAIN_FRAME, TOTAL_PHOTOS, slotAspectRatio } from './frameSlots';
+import { drawPhotostrip, exportPhotostrip } from './photostrip';
+import {
+  useCameraSource,
+  BRIDGE_URL,
+} from './useCameraSource';
+
+const COUNTDOWN_SECONDS = 5;
+const PREVIEW_WIDTH = 400;
+
+const FRAME_CHOICES = [...FRAMES, PLAIN_FRAME];
 
 function App() {
   const [step, setStep] = useState('welcome');
   const [photos, setPhotos] = useState([]);
-  
-  // State untuk menyimpan frame pilihan
-  const [selectedFrame, setSelectedFrame] = useState(frame1);
-  const [frameColor, setFrameColor] = useState(frame1);
+  const [selectedFrame, setSelectedFrame] = useState(FRAMES[0]);
+  const [activeFrame, setActiveFrame] = useState(FRAMES[0]);
 
-  // Total foto dikunci langsung menjadi 6 foto
-  const totalPhotos = 6;
-
-  // State Hitung Mundur & Preview Foto
   const [countdown, setCountdown] = useState(null);
   const [previewPhoto, setPreviewPhoto] = useState(null);
   const [isCounting, setIsCounting] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [captureError, setCaptureError] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   const webcamRef = useRef(null);
-  const stripRef = useRef(null);
+  const previewCanvasRef = useRef(null);
+
+  const camera = useCameraSource({ webcamRef });
+
+  // ---------------------------------------------------------------- capture
+
+  const runCapture = useCallback(async () => {
+    setIsCapturing(true);
+    setCaptureError(null);
+    try {
+      const shot = await camera.capture();
+      setPreviewPhoto(shot);
+    } catch (err) {
+      setCaptureError(err.message);
+    } finally {
+      setIsCapturing(false);
+    }
+  }, [camera]);
 
   useEffect(() => {
-    if (countdown === null) return;
+    if (countdown === null) return undefined;
+
     if (countdown > 0) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
       return () => clearTimeout(timer);
-    } else if (countdown === 0) {
-      capturePhoto();
-      setCountdown(null);
-      setIsCounting(false);
     }
-  }, [countdown]);
+
+    // countdown hit zero
+    setCountdown(null);
+    setIsCounting(false);
+    runCapture();
+    return undefined;
+  }, [countdown, runCapture]);
 
   const startCountdown = () => {
-    if (photos.length < totalPhotos && !isCounting) {
-      setIsCounting(true);
-      setCountdown(5); // Hitung mundur 3 detik
-    }
-  };
-
-  const capturePhoto = () => {
-    if (webcamRef.current) {
-      const imageSrc = webcamRef.current.getScreenshot();
-      if (imageSrc) setPreviewPhoto(imageSrc);
-    }
+    if (photos.length >= TOTAL_PHOTOS || isCounting || isCapturing) return;
+    setCaptureError(null);
+    setIsCounting(true);
+    setCountdown(COUNTDOWN_SECONDS);
   };
 
   const acceptPhoto = () => {
-    if (previewPhoto) {
-      const newPhotos = [...photos, previewPhoto];
-      setPhotos(newPhotos);
-      setPreviewPhoto(null);
-
-      // Pindah ke halaman frame jika sudah pas 6 foto
-      if (newPhotos.length === totalPhotos) {
-        setStep('frame');
-      }
-    }
+    if (!previewPhoto) return;
+    const next = [...photos, previewPhoto];
+    setPhotos(next);
+    setPreviewPhoto(null);
+    if (next.length === TOTAL_PHOTOS) setStep('frame');
   };
 
-  const retakePhoto = () => setPreviewPhoto(null);
-
-  const downloadPhotostrip = async () => {
-    if (stripRef.current) {
-      const canvas = await html2canvas(stripRef.current, { scale: 2, useCORS: true });
-      const image = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = image;
-      link.download = `snapbooth-6foto-${Date.now()}.png`;
-      link.click();
-    }
+  const retakePhoto = () => {
+    setPreviewPhoto(null);
+    setCaptureError(null);
   };
 
   const resetAll = () => {
     setPhotos([]);
-    setStep('welcome');
     setPreviewPhoto(null);
     setCountdown(null);
     setIsCounting(false);
+    setCaptureError(null);
+    setStep('welcome');
   };
 
-  return (
-    <div style={{ width: '100vw', height: '100vh', margin: 0, padding: 0, overflow: 'hidden', fontFamily: 'sans-serif', backgroundColor: '#000' }}>
+  // ------------------------------------------------------------- photostrip
 
+  // Preview is drawn by the very same compositor used for the export, so the
+  // saved file cannot disagree with what the operator approved on screen.
+  useEffect(() => {
+    if (step !== 'frame' || !previewCanvasRef.current) return;
+    let cancelled = false;
+    drawPhotostrip(previewCanvasRef.current, activeFrame, photos, {
+      width: PREVIEW_WIDTH,
+    }).catch((err) => {
+      if (!cancelled) console.error('preview render failed', err);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [step, activeFrame, photos]);
+
+  const downloadPhotostrip = async () => {
+    setIsExporting(true);
+    try {
+      const { url, width, height } = await exportPhotostrip(activeFrame, photos);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `snapbooth-${width}x${height}-${Date.now()}.png`;
+      link.click();
+      // Give the browser a beat to start the download before revoking.
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    } catch (err) {
+      setCaptureError(err.message);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // ------------------------------------------------------------------ views
+
+  const previewHeight = Math.round(PREVIEW_WIDTH / activeFrame.aspectRatio);
+
+  // Crop the live preview to the frame's slot shape so the operator frames the
+  // shot against the same crop the strip will apply. Without this, a 16:9
+  // webcam or a 3:2 sensor looks nothing like the final ~1.48 slot.
+  const targetSlotAspect = useMemo(
+    () => slotAspectRatio(selectedFrame.src ? selectedFrame : FRAMES[0]),
+    [selectedFrame]
+  );
+
+  const statusBadge = () => {
+    if (camera.status === 'probing') {
+      return { text: 'Mendeteksi kamera...', color: '#6b7280' };
+    }
+    if (camera.isDslr) {
+      const model = (camera.info && camera.info.model) || 'DSLR';
+      return { text: `${model} terhubung via USB`, color: '#10b981' };
+    }
+    return { text: 'Memakai kamera laptop (fallback)', color: '#f59e0b' };
+  };
+
+  const badge = statusBadge();
+
+  return (
+    <div
+      style={{
+        width: '100vw',
+        height: '100vh',
+        margin: 0,
+        padding: 0,
+        overflow: 'hidden',
+        fontFamily: 'sans-serif',
+        backgroundColor: '#000',
+      }}
+    >
       {/* HALAMAN 1: WELCOME */}
       {step === 'welcome' && (
-        <div style={{ width: '100%', height: '100%', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '20px', boxSizing: 'border-box' }}>
+        <div style={styles.page}>
           <div style={{ fontSize: '100px', marginBottom: '20px' }}>📸</div>
-          <h1 style={{ color: '#1f2937', marginBottom: '15px', fontSize: '48px', fontWeight: 'bold' }}>SnapBooth</h1>
-          <p style={{ color: '#6b7280', marginBottom: '40px', fontSize: '18px' }}>Abadikan momen serumu dengan pilihan frame 6 foto keren!</p>
-          <button 
-            onClick={() => setStep('select-frame')}
-            style={{ padding: '18px 40px', backgroundColor: '#4f46e5', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)' }}
+          <h1 style={{ color: '#1f2937', marginBottom: '15px', fontSize: '48px', fontWeight: 'bold' }}>
+            SnapBooth
+          </h1>
+          <p style={{ color: '#6b7280', marginBottom: '18px', fontSize: '18px' }}>
+            Abadikan momen serumu dengan pilihan frame {TOTAL_PHOTOS} foto keren!
+          </p>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              marginBottom: '30px',
+              padding: '10px 18px',
+              borderRadius: '999px',
+              backgroundColor: '#f9fafb',
+              border: `1px solid ${badge.color}`,
+            }}
           >
+            <span
+              style={{
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                backgroundColor: badge.color,
+                display: 'inline-block',
+              }}
+            />
+            <span style={{ color: badge.color, fontWeight: 'bold', fontSize: '14px' }}>
+              {badge.text}
+            </span>
+            <button onClick={camera.retry} style={styles.linkButton}>
+              cek ulang
+            </button>
+          </div>
+
+          {!camera.isDslr && camera.error && (
+            <div style={styles.warningBox}>
+              <strong>Kamera M100 belum aktif.</strong>
+              <div style={{ marginTop: '6px' }}>{camera.error}</div>
+              <ol style={{ margin: '10px 0 0 18px', padding: 0, lineHeight: 1.6 }}>
+                <li>Nyalakan kamera, mode foto (bukan movie), kartu SD terpasang.</li>
+                <li>
+                  Windows (Administrator PowerShell):
+                  <code style={styles.code}>.\scripts\attach-camera.ps1</code>
+                </li>
+                <li>
+                  WSL: <code style={styles.code}>bash scripts/verify-camera.sh</code>
+                </li>
+                <li>
+                  Jalankan bridge: <code style={styles.code}>npm run bridge</code> (
+                  {BRIDGE_URL})
+                </li>
+              </ol>
+            </div>
+          )}
+
+          <button onClick={() => setStep('select-frame')} style={styles.primaryButton}>
             Mulai Photobooth 🚀
           </button>
         </div>
@@ -107,72 +230,84 @@ function App() {
 
       {/* HALAMAN 2: PILIH FRAME */}
       {step === 'select-frame' && (
-        <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box', overflowY: 'auto' }}>
-          <h2 style={{ color: '#1f2937', marginBottom: '8px', fontSize: '26px' }}>Pilih Frame Favoritmu ✨</h2>
-          <p style={{ color: '#6b7280', marginBottom: '25px', fontSize: '15px' }}>Klik salah satu desain frame di bawah ini:</p>
+        <div style={{ ...styles.page, backgroundColor: '#f3f4f6', overflowY: 'auto' }}>
+          <h2 style={{ color: '#1f2937', marginBottom: '8px', fontSize: '26px' }}>
+            Pilih Frame Favoritmu ✨
+          </h2>
+          <p style={{ color: '#6b7280', marginBottom: '25px', fontSize: '15px' }}>
+            Klik salah satu desain frame di bawah ini:
+          </p>
 
-          <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', flexWrap: 'wrap', justifyContent: 'center' }}>
-            
-            {[
-              { id: 'frame1', name: 'Frame 1', src: frame1 },
-              { id: 'frame2', name: 'Frame 2', src: frame2 },
-              { id: 'frame3', name: 'Frame 3', src: frame3 },
-              { id: 'frame4', name: 'Frame 4', src: frame4 }
-            ].map((item) => (
-              <div 
-                key={item.id}
-                onClick={() => setSelectedFrame(item.src)}
-                style={{
-                  cursor: 'pointer',
-                  border: selectedFrame === item.src ? '4px solid #4f46e5' : '2px solid #e5e7eb',
-                  borderRadius: '14px',
-                  padding: '12px',
-                  backgroundColor: '#ffffff',
-                  textAlign: 'center',
-                  boxShadow: selectedFrame === item.src ? '0 10px 25px rgba(79, 70, 229, 0.25)' : '0 4px 12px rgba(0,0,0,0.06)',
-                  width: '120px'
-                }}
-              >
-                <div style={{ width: '96px', height: '210px', backgroundColor: '#f8fafc', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px auto' }}>
-                  <img 
-                    src={item.src} 
-                    alt={item.name} 
-                    style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} 
-                  />
+          <div
+            style={{
+              display: 'flex',
+              gap: '20px',
+              marginBottom: '30px',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+            }}
+          >
+            {FRAME_CHOICES.map((frame) => {
+              const active = selectedFrame.id === frame.id;
+              return (
+                <div
+                  key={frame.id}
+                  onClick={() => setSelectedFrame(frame)}
+                  style={{
+                    cursor: 'pointer',
+                    border: active ? '4px solid #4f46e5' : '2px solid #e5e7eb',
+                    borderRadius: '14px',
+                    padding: '12px',
+                    backgroundColor: '#ffffff',
+                    textAlign: 'center',
+                    boxShadow: active
+                      ? '0 10px 25px rgba(79, 70, 229, 0.25)'
+                      : '0 4px 12px rgba(0,0,0,0.06)',
+                    width: '120px',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '96px',
+                      // Thumbnail box follows the real frame aspect, so the
+                      // preview is not distorted relative to the print.
+                      height: `${Math.round(96 / frame.aspectRatio)}px`,
+                      backgroundColor: '#f8fafc',
+                      borderRadius: '8px',
+                      overflow: 'hidden',
+                      margin: '0 auto 10px auto',
+                      border: frame.src ? 'none' : '1px dashed #cbd5e1',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '24px',
+                    }}
+                  >
+                    {frame.src ? (
+                      <img
+                        src={frame.src}
+                        alt={frame.name}
+                        style={{ width: '100%', height: '100%', display: 'block' }}
+                      />
+                    ) : (
+                      '🖼️'
+                    )}
+                  </div>
+                  <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#374151' }}>
+                    {frame.name}
+                  </span>
                 </div>
-                <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#374151' }}>{item.name}</span>
-              </div>
-            ))}
-
-            {/* Opsi Polos Putih */}
-            <div 
-              onClick={() => setSelectedFrame('#ffffff')}
-              style={{
-                cursor: 'pointer',
-                border: selectedFrame === '#ffffff' ? '4px solid #4f46e5' : '2px solid #e5e7eb',
-                borderRadius: '14px',
-                padding: '12px',
-                backgroundColor: '#ffffff',
-                textAlign: 'center',
-                boxShadow: selectedFrame === '#ffffff' ? '0 10px 25px rgba(79, 70, 229, 0.25)' : '0 4px 12px rgba(0,0,0,0.06)',
-                width: '120px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}
-            >
-              <div style={{ width: '96px', height: '210px', backgroundColor: '#ffffff', border: '1px dashed #cbd5e1', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px auto', fontSize: '24px' }}>
-                🖼️
-              </div>
-              <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#374151' }}>Polos Putih</span>
-            </div>
-
+              );
+            })}
           </div>
 
-          <button 
-            onClick={() => { setFrameColor(selectedFrame); setPhotos([]); setStep('camera'); }}
-            style={{ padding: '14px 36px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}
+          <button
+            onClick={() => {
+              setActiveFrame(selectedFrame);
+              setPhotos([]);
+              setStep('camera');
+            }}
+            style={{ ...styles.primaryButton, backgroundColor: '#10b981' }}
           >
             Mulai Ambil Foto 🚀
           </button>
@@ -182,43 +317,124 @@ function App() {
       {/* HALAMAN 3: KAMERA */}
       {step === 'camera' && (
         <div style={{ position: 'relative', width: '100vw', height: '100vh', backgroundColor: '#000' }}>
-          <Webcam
-            audio={false}
-            ref={webcamRef}
-            screenshotFormat="image/png"
-            videoConstraints={{ facingMode: "user" }}
-            style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh', objectFit: 'cover' }}
-          />
+          {/* Live view. The DSLR arrives as MJPEG over HTTP because the M100 is
+              a PTP device, not a UVC webcam, so getUserMedia can never see it. */}
+          {camera.isDslr ? (
+            <img
+              src={camera.streamUrl}
+              alt="Live view kamera"
+              onError={camera.retry}
+              style={styles.liveView}
+            />
+          ) : (
+            <Webcam
+              audio={false}
+              ref={webcamRef}
+              screenshotFormat="image/jpeg"
+              screenshotQuality={0.95}
+              videoConstraints={{ facingMode: 'user', width: 1920, height: 1080 }}
+              mirrored
+              style={styles.liveView}
+            />
+          )}
+
+          {/* Slot-shaped guide so the operator composes against the real crop. */}
+          <div style={styles.guideWrap}>
+            <div
+              style={{
+                aspectRatio: String(targetSlotAspect),
+                height: '62vh',
+                border: '2px dashed rgba(255,255,255,0.55)',
+                borderRadius: '6px',
+                boxShadow: '0 0 0 9999px rgba(0,0,0,0.28)',
+              }}
+            />
+          </div>
+
+          <div style={styles.sourceChip}>
+            <span
+              style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: camera.isDslr ? '#10b981' : '#f59e0b',
+                display: 'inline-block',
+              }}
+            />
+            {camera.isDslr
+              ? `${(camera.info && camera.info.model) || 'DSLR'} · USB tether`
+              : 'Kamera laptop'}
+          </div>
 
           {countdown !== null && (
-            <div style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 20 }}>
+            <div style={styles.overlayCenter}>
               <span style={{ fontSize: '140px', fontWeight: 'bold', color: '#ffffff' }}>
                 {countdown > 0 ? countdown : '📸'}
               </span>
             </div>
           )}
 
-          <div style={{ position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', zIndex: 10 }}>
-            <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)', color: '#fff', padding: '8px 18px', borderRadius: '20px', fontSize: '16px', fontWeight: 'bold' }}>
-              Foto ke-{photos.length + 1} dari {totalPhotos}
+          {isCapturing && (
+            <div style={styles.overlayCenter}>
+              <div style={{ textAlign: 'center', color: '#fff' }}>
+                <div style={{ fontSize: '64px' }}>📷</div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '10px' }}>
+                  {camera.isDslr ? 'Kamera sedang fokus & menyimpan...' : 'Mengambil gambar...'}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div style={styles.bottomBar}>
+            <div style={styles.counterPill}>
+              Foto ke-{Math.min(photos.length + 1, TOTAL_PHOTOS)} dari {TOTAL_PHOTOS}
             </div>
 
-            <button 
+            {captureError && <div style={styles.errorPill}>{captureError}</div>}
+
+            <button
               onClick={startCountdown}
-              disabled={isCounting || previewPhoto !== null}
-              style={{ width: '75px', height: '75px', borderRadius: '50%', backgroundColor: isCounting ? '#ccc' : '#ffffff', border: '4px solid #10b981', fontSize: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+              disabled={isCounting || isCapturing || previewPhoto !== null}
+              style={{
+                width: '75px',
+                height: '75px',
+                borderRadius: '50%',
+                backgroundColor: isCounting || isCapturing ? '#ccc' : '#ffffff',
+                border: '4px solid #10b981',
+                fontSize: '28px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: isCounting || isCapturing ? 'not-allowed' : 'pointer',
+              }}
             >
               📸
             </button>
           </div>
 
           {previewPhoto && (
-            <div style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.85)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 30, padding: '20px' }}>
-              <h3 style={{ color: '#fff', marginBottom: '15px' }}>Hasil Foto ke-{photos.length + 1}</h3>
-              <img src={previewPhoto} alt="Preview" style={{ maxWidth: '85%', maxHeight: '55vh', borderRadius: '12px', marginBottom: '20px' }} />
+            <div style={styles.previewModal}>
+              <h3 style={{ color: '#fff', marginBottom: '15px' }}>
+                Hasil Foto ke-{photos.length + 1}
+              </h3>
+              <img
+                src={previewPhoto.dataUrl}
+                alt="Preview"
+                style={{
+                  maxWidth: '85%',
+                  maxHeight: '55vh',
+                  borderRadius: '12px',
+                  marginBottom: '20px',
+                  transform: previewPhoto.mirrored ? 'scaleX(-1)' : 'none',
+                }}
+              />
               <div style={{ display: 'flex', gap: '15px' }}>
-                <button onClick={retakePhoto} style={{ padding: '12px 24px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>🔄 Ulangi</button>
-                <button onClick={acceptPhoto} style={{ padding: '12px 24px', backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>✅ Gunakan</button>
+                <button onClick={retakePhoto} style={{ ...styles.pillButton, backgroundColor: '#ef4444' }}>
+                  🔄 Ulangi
+                </button>
+                <button onClick={acceptPhoto} style={{ ...styles.pillButton, backgroundColor: '#10b981' }}>
+                  ✅ Gunakan
+                </button>
               </div>
             </div>
           )}
@@ -227,82 +443,223 @@ function App() {
 
       {/* HALAMAN 4: HASIL FOTOSTRIP */}
       {step === 'frame' && (
-        <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflowY: 'auto', padding: '20px', boxSizing: 'border-box' }}>
+        <div style={{ ...styles.page, backgroundColor: '#f3f4f6', overflowY: 'auto' }}>
           <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip Kamu 🎉</h2>
-          <p style={{ color: '#6b7280', marginBottom: '30px', fontSize: '15px' }}>Simpan atau bagikan hasil fotostrip 6 foto kamu!</p>
+          <p style={{ color: '#6b7280', marginBottom: '20px', fontSize: '15px' }}>
+            Simpan atau bagikan hasil fotostrip {TOTAL_PHOTOS} foto kamu!
+          </p>
 
- {/* Kanvas Utama 400x600 (Format 4R) */}
-          <div 
-            ref={stripRef}
-            style={{ 
-              position: 'relative', 
-              width: '400px', 
-              height: '600px', 
-              backgroundColor: '#ffffff', 
+          {/* Single canvas: photos are composited into the measured slot
+              rectangles, then the frame overlay is drawn on top. */}
+          <canvas
+            ref={previewCanvasRef}
+            width={PREVIEW_WIDTH}
+            height={previewHeight}
+            style={{
+              width: `${PREVIEW_WIDTH}px`,
+              height: `${previewHeight}px`,
+              backgroundColor: '#ffffff',
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-              overflow: 'hidden'
             }}
-          >
-            {/* 1. LAPISAN FOTO DI BAWAH (Z-INDEX 1) */}
-            {/* Posisi dikembalikan ke yang paling pas, dengan ukuran sedikit dilebihkan agar masuk ke bawah frame biru */}
-            {photos.length > 0 && (
-              <div style={{ position: 'absolute', top: '0px', left: '0px', width: '100%', height: '100%', zIndex: 1 }}>
-                
-                {/* Baris 1 */}
-                <div style={{ position: 'absolute', top: '74px', left: '68px', width: '134px', height: '135px' }}>
-                  <img src={photos[0]} alt="0" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
-                <div style={{ position: 'absolute', top: '74px', left: '202px', width: '134px', height: '135px' }}>
-                  <img src={photos[1]} alt="1" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
+          />
 
-                {/* Baris 2 */}
-                <div style={{ position: 'absolute', top: '220px', left: '68px', width: '134px', height: '135px' }}>
-                  <img src={photos[2]} alt="2" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
-                <div style={{ position: 'absolute', top: '220px', left: '202px', width: '134px', height: '135px' }}>
-                  <img src={photos[3]} alt="3" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
-
-                {/* Baris 3 */}
-                <div style={{ position: 'absolute', top: '365px', left: '68px', width: '134px', height: '135px' }}>
-                  <img src={photos[4]} alt="4" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
-                <div style={{ position: 'absolute', top: '365px', left: '202px', width: '134px', height: '135px' }}>
-                  <img src={photos[5]} alt="5" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
-
-              </div>
-            )}
-
-            {/* 2. LAPISAN FRAME DI ATAS (Z-INDEX 10) */}
-            {!frameColor.startsWith('#') && (
-              <img 
-                src={frameColor} 
-                alt="Frame" 
-                style={{ 
-                  position: 'absolute', 
-                  top: 0, 
-                  left: 0, 
-                  width: '100%', 
-                  height: '100%', 
-                  pointerEvents: 'none', 
-                  zIndex: 10, 
-                  objectFit: 'contain' /* KEMBALI PAKAI CONTAIN AGAR FRAME TIDAK NGE-ZOOM/GESER */
-                }} 
-              />
-            )}
-            
+          <div style={{ marginTop: '14px', display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            {FRAME_CHOICES.map((frame) => (
+              <button
+                key={frame.id}
+                onClick={() => setActiveFrame(frame)}
+                style={{
+                  padding: '6px 14px',
+                  fontSize: '13px',
+                  borderRadius: '999px',
+                  cursor: 'pointer',
+                  border: activeFrame.id === frame.id ? '2px solid #4f46e5' : '1px solid #d1d5db',
+                  backgroundColor: activeFrame.id === frame.id ? '#eef2ff' : '#fff',
+                  color: '#374151',
+                  fontWeight: activeFrame.id === frame.id ? 'bold' : 'normal',
+                }}
+              >
+                {frame.name}
+              </button>
+            ))}
           </div>
 
-          <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-            <button onClick={downloadPhotostrip} style={{ padding: '12px 24px', backgroundColor: '#4f46e5', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>📥 Simpan Foto 4R</button>
-            <button onClick={resetAll} style={{ padding: '12px 24px', backgroundColor: '#6b7280', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>🔄 Mulai Dari Awal</button>
+          <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+            <button
+              onClick={downloadPhotostrip}
+              disabled={isExporting}
+              style={{
+                ...styles.pillButton,
+                backgroundColor: isExporting ? '#9ca3af' : '#4f46e5',
+                cursor: isExporting ? 'wait' : 'pointer',
+              }}
+            >
+              {isExporting ? '⏳ Menyiapkan...' : '📥 Simpan Foto 4R (300dpi)'}
+            </button>
+            <button onClick={resetAll} style={{ ...styles.pillButton, backgroundColor: '#6b7280' }}>
+              🔄 Mulai Dari Awal
+            </button>
           </div>
+
+          {captureError && (
+            <div style={{ ...styles.warningBox, marginTop: '18px' }}>{captureError}</div>
+          )}
         </div>
       )}
     </div>
   );
 }
+
+const styles = {
+  page: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#ffffff',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+    padding: '20px',
+    boxSizing: 'border-box',
+  },
+  liveView: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    objectFit: 'cover',
+  },
+  guideWrap: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    pointerEvents: 'none',
+    zIndex: 5,
+  },
+  sourceChip: {
+    position: 'absolute',
+    top: '18px',
+    left: '18px',
+    zIndex: 15,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    color: '#fff',
+    padding: '7px 14px',
+    borderRadius: '999px',
+    fontSize: '13px',
+    fontWeight: 'bold',
+  },
+  overlayCenter: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 20,
+  },
+  bottomBar: {
+    position: 'absolute',
+    bottom: '40px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '12px',
+    zIndex: 10,
+  },
+  counterPill: {
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    color: '#fff',
+    padding: '8px 18px',
+    borderRadius: '20px',
+    fontSize: '16px',
+    fontWeight: 'bold',
+  },
+  errorPill: {
+    backgroundColor: 'rgba(239, 68, 68, 0.92)',
+    color: '#fff',
+    padding: '8px 16px',
+    borderRadius: '10px',
+    fontSize: '13px',
+    maxWidth: '420px',
+    textAlign: 'center',
+  },
+  previewModal: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 30,
+    padding: '20px',
+  },
+  primaryButton: {
+    padding: '18px 40px',
+    backgroundColor: '#4f46e5',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '12px',
+    fontSize: '18px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+  },
+  pillButton: {
+    padding: '12px 24px',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '8px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+  },
+  linkButton: {
+    background: 'none',
+    border: 'none',
+    color: '#4f46e5',
+    textDecoration: 'underline',
+    cursor: 'pointer',
+    fontSize: '13px',
+    padding: 0,
+  },
+  warningBox: {
+    maxWidth: '560px',
+    marginBottom: '26px',
+    padding: '16px 20px',
+    borderRadius: '12px',
+    backgroundColor: '#fffbeb',
+    border: '1px solid #fcd34d',
+    color: '#92400e',
+    fontSize: '14px',
+    textAlign: 'left',
+    lineHeight: 1.5,
+  },
+  code: {
+    backgroundColor: '#1f2937',
+    color: '#f9fafb',
+    padding: '2px 6px',
+    borderRadius: '4px',
+    fontSize: '12px',
+    marginLeft: '4px',
+  },
+};
 
 export default App;
