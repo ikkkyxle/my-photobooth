@@ -262,22 +262,38 @@ function App() {
 
         {/* TAMPILAN 6 FOTO */}
             {photos.length > 0 && (
-              <div style={{ position: 'absolute', top: '50px', left: '35px', width: '330px', height: '500px', display: 'grid', gridTemplateColumns: '131px 131px', gridTemplateRows: '132px 145px 145px', gap: '14px 12px', zIndex: 1 }}>
-                {photos.map((photo, index) => (
-                  <div key={index} style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: '4px' }}>
-                    <img 
-                      src={photo} 
-                      alt={`photo-${index}`} 
-                      style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        objectFit: 'cover', 
-                        display: 'block', 
-                        transform: 'scaleX(-1)' 
-                      }} 
-                    />
-                  </div>
-                ))}
+              <div style={{ position: 'absolute', top: '0px', left: '0px', width: '100%', height: '100%', zIndex: 1 }}>
+                
+                {/* Kotak 1 (Kiri Atas - Foto 1) */}
+                <div style={{ position: 'absolute', top: '74px', left: '68px', width: '131px', height: '124px', overflow: 'hidden' }}>
+                  <img src={photos[0]} alt="0" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
+                </div>
+
+                {/* Kotak 2 (Kanan Atas - Foto 2) */}
+                <div style={{ position: 'absolute', top: '74px', left: '202px', width: '131px', height: '124px', overflow: 'hidden' }}>
+                  <img src={photos[1]} alt="1" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
+                </div>
+
+                {/* Kotak 3 (Kiri Tengah - Foto 3) */}
+                <div style={{ position: 'absolute', top: '220px', left: '68px', width: '131px', height: '124px', overflow: 'hidden' }}>
+                  <img src={photos[2]} alt="2" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
+                </div>
+
+                {/* Kotak 4 (Kanan Tengah - Foto 4) */}
+                <div style={{ position: 'absolute', top: '220px', left: '202px', width: '131px', height: '124px', overflow: 'hidden' }}>
+                  <img src={photos[3]} alt="3" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
+                </div>
+
+                {/* Kotak 5 (Kiri Bawah - Foto 5) */}
+                <div style={{ position: 'absolute', top: '365px', left: '68px', width: '131px', height: '124px', overflow: 'hidden' }}>
+                  <img src={photos[4]} alt="4" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
+                </div>
+
+                {/* Kotak 6 (Kanan Bawah - Foto 6) */}
+                <div style={{ position: 'absolute', top: '365px', left: '202px', width: '131px', height: '124px', overflow: 'hidden' }}>
+                  <img src={photos[5]} alt="5" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
+                </div>
+
               </div>
             )}
             
