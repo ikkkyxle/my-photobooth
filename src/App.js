@@ -231,7 +231,7 @@ function App() {
           <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip Kamu 🎉</h2>
           <p style={{ color: '#6b7280', marginBottom: '30px', fontSize: '15px' }}>Simpan atau bagikan hasil fotostrip 6 foto kamu!</p>
 
-    {/* Kanvas Utama 400x600 (Format 4R) */}
+ {/* Kanvas Utama 400x600 (Format 4R) */}
           <div 
             ref={stripRef}
             style={{ 
@@ -243,38 +243,39 @@ function App() {
               overflow: 'hidden'
             }}
           >
-            {/* 1. LAPISAN BAWAH: 6 FOTO (DIBUAT LEBIH BESAR DARI LUBANG BIAR TIDAK ADA CELAH PUTIH) */}
+            {/* 1. LAPISAN FOTO DI BAWAH (Z-INDEX 1) */}
+            {/* Posisi dikembalikan ke yang paling pas, dengan ukuran sedikit dilebihkan agar masuk ke bawah frame biru */}
             {photos.length > 0 && (
               <div style={{ position: 'absolute', top: '0px', left: '0px', width: '100%', height: '100%', zIndex: 1 }}>
                 
                 {/* Baris 1 */}
-                <div style={{ position: 'absolute', top: '65px', left: '60px', width: '145px', height: '140px' }}>
+                <div style={{ position: 'absolute', top: '74px', left: '68px', width: '134px', height: '135px' }}>
                   <img src={photos[0]} alt="0" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                 </div>
-                <div style={{ position: 'absolute', top: '65px', left: '195px', width: '145px', height: '140px' }}>
+                <div style={{ position: 'absolute', top: '74px', left: '202px', width: '134px', height: '135px' }}>
                   <img src={photos[1]} alt="1" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                 </div>
 
                 {/* Baris 2 */}
-                <div style={{ position: 'absolute', top: '210px', left: '60px', width: '145px', height: '140px' }}>
+                <div style={{ position: 'absolute', top: '220px', left: '68px', width: '134px', height: '135px' }}>
                   <img src={photos[2]} alt="2" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                 </div>
-                <div style={{ position: 'absolute', top: '210px', left: '195px', width: '145px', height: '140px' }}>
+                <div style={{ position: 'absolute', top: '220px', left: '202px', width: '134px', height: '135px' }}>
                   <img src={photos[3]} alt="3" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                 </div>
 
                 {/* Baris 3 */}
-                <div style={{ position: 'absolute', top: '355px', left: '60px', width: '145px', height: '140px' }}>
+                <div style={{ position: 'absolute', top: '365px', left: '68px', width: '134px', height: '135px' }}>
                   <img src={photos[4]} alt="4" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                 </div>
-                <div style={{ position: 'absolute', top: '355px', left: '195px', width: '145px', height: '140px' }}>
+                <div style={{ position: 'absolute', top: '365px', left: '202px', width: '134px', height: '135px' }}>
                   <img src={photos[5]} alt="5" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                 </div>
 
               </div>
             )}
 
-            {/* 2. LAPISAN ATAS: FRAME CUSTOM (MENUTUPI TEPIAN FOTO YANG BERLEBIH) */}
+            {/* 2. LAPISAN FRAME DI ATAS (Z-INDEX 10) */}
             {!frameColor.startsWith('#') && (
               <img 
                 src={frameColor} 
@@ -287,11 +288,11 @@ function App() {
                   height: '100%', 
                   pointerEvents: 'none', 
                   zIndex: 10, 
-                  objectFit: 'cover' 
+                  objectFit: 'contain' /* KEMBALI PAKAI CONTAIN AGAR FRAME TIDAK NGE-ZOOM/GESER */
                 }} 
               />
             )}
-             
+            
           </div>
 
           <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
