@@ -242,7 +242,25 @@ function App() {
               overflow: 'hidden'
             }}
           >
-          {/* TAMPILAN 6 FOTO */}
+            {/* GAMBAR FRAME CUSTOM */}
+            {!frameColor.startsWith('#') && (
+              <img 
+                src={frameColor} 
+                alt="Frame" 
+                style={{ 
+                  position: 'absolute', 
+                  top: 0, 
+                  left: 0, 
+                  width: '100%', 
+                  height: '100%', 
+                  pointerEvents: 'none', 
+                  zIndex: 10, 
+                  objectFit: 'contain' 
+                }} 
+              />
+            )}
+
+            {/* TAMPILAN 6 FOTO */}
             {photos.length > 0 && (
               <div style={{ position: 'absolute', top: '50px', left: '35px', width: '330px', height: '500px', display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr 1fr', gap: '15px 12px', zIndex: 1 }}>
                 {photos.map((photo, index) => (
