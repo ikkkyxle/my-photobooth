@@ -259,7 +259,7 @@ function App() {
                 }} 
               />
             )}
-
+            
         {/* TAMPILAN 6 FOTO */}
             {photos.length > 0 && (
               <div style={{ position: 'absolute', top: '0px', left: '0px', width: '100%', height: '100%', zIndex: 1 }}>
@@ -284,13 +284,13 @@ function App() {
                   <img src={photos[3]} alt="3" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                 </div>
 
-                {/* Kotak 5 (Kiri Bawah - Foto 5) */}
-                <div style={{ position: 'absolute', top: '365px', left: '68px', width: '131px', height: '124px', overflow: 'hidden' }}>
+                {/* Kotak 5 (Kiri Bawah - Foto 5) - Diperbaiki posisinya */}
+                <div style={{ position: 'absolute', top: '368px', left: '68px', width: '131px', height: '129px', overflow: 'hidden' }}>
                   <img src={photos[4]} alt="4" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                 </div>
 
-                {/* Kotak 6 (Kanan Bawah - Foto 6) */}
-                <div style={{ position: 'absolute', top: '365px', left: '202px', width: '131px', height: '124px', overflow: 'hidden' }}>
+                {/* Kotak 6 (Kanan Bawah - Foto 6) - Diperbaiki posisinya */}
+                <div style={{ position: 'absolute', top: '368px', left: '202px', width: '131px', height: '129px', overflow: 'hidden' }}>
                   <img src={photos[5]} alt="5" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
                 </div>
 
