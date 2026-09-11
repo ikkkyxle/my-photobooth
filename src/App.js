@@ -230,19 +230,51 @@ function App() {
         <div style={{ width: '100vw', height: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflowY: 'auto', padding: '20px', boxSizing: 'border-box' }}>
           <h2 style={{ color: '#1f2937', marginBottom: '15px' }}>Photostrip Kamu 🎉</h2>
 
-          {/* Kanvas Utama 400x600 (Format 4R) */}
+ {/* Kanvas Utama 400x600 (Format 4R) */}
           <div 
             ref={stripRef}
             style={{ 
               position: 'relative', 
               width: '400px', 
               height: '600px', 
-              backgroundColor: frameColor.startsWith('#') ? frameColor : '#ffffff', 
+              backgroundColor: '#ffffff', 
               boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
               overflow: 'hidden'
             }}
           >
-            {/* GAMBAR FRAME CUSTOM */}
+            {/* 1. FOTO DI BELAKANG (Z-INDEX 1) */}
+            {photos.length > 0 && (
+              <div style={{ 
+                position: 'absolute', 
+                top: '75px',    /* TWEAK DI SINI: Ganti angka ini kalau mau naikin/turunin semua foto */
+                left: '60px',   /* TWEAK DI SINI: Ganti angka ini kalau mau geser kanan/kiri */
+                width: '280px', /* Lebar total 2 kolom foto */
+                height: '430px',/* Tinggi total 3 baris foto */
+                display: 'grid', 
+                gridTemplateColumns: '1fr 1fr', 
+                gridTemplateRows: '1fr 1fr 1fr', 
+                gap: '10px 10px', /* Jarak antar foto */
+                zIndex: 1 
+              }}>
+                {photos.map((photo, index) => (
+                  <div key={index} style={{ width: '100%', height: '100%' }}>
+                    <img 
+                      src={photo} 
+                      alt={`photo-${index}`} 
+                      style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        objectFit: 'cover', 
+                        display: 'block', 
+                        transform: 'scaleX(-1)' 
+                      }} 
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* 2. FRAME DI DEPAN SEBAGAI PENUTUP (Z-INDEX 10) */}
             {!frameColor.startsWith('#') && (
               <img 
                 src={frameColor} 
@@ -255,46 +287,9 @@ function App() {
                   height: '100%', 
                   pointerEvents: 'none', 
                   zIndex: 10, 
-                  objectFit: 'contain' 
+                  objectFit: 'cover' /* Pakai cover agar frame menutupi seluruh ujung kanvas 400x600 */
                 }} 
               />
-            )}
-
-          {/* TAMPILAN 6 FOTO */}
-            {photos.length > 0 && (
-              <div style={{ position: 'absolute', top: '0px', left: '0px', width: '100%', height: '100%', zIndex: 1 }}>
-                
-                {/* Kotak 1 (Kiri Atas - Foto 1) */}
-                <div style={{ position: 'absolute', top: '74px', left: '68px', width: '131px', height: '124px', overflow: 'hidden' }}>
-                  <img src={photos[0]} alt="0" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
-
-                {/* Kotak 2 (Kanan Atas - Foto 2) */}
-                <div style={{ position: 'absolute', top: '74px', left: '202px', width: '131px', height: '124px', overflow: 'hidden' }}>
-                  <img src={photos[1]} alt="1" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
-
-                {/* Kotak 3 (Kiri Tengah - Foto 3) */}
-                <div style={{ position: 'absolute', top: '220px', left: '68px', width: '131px', height: '124px', overflow: 'hidden' }}>
-                  <img src={photos[2]} alt="2" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
-
-                {/* Kotak 4 (Kanan Tengah - Foto 4) */}
-                <div style={{ position: 'absolute', top: '220px', left: '202px', width: '131px', height: '124px', overflow: 'hidden' }}>
-                  <img src={photos[3]} alt="3" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
-
-                {/* Kotak 5 (Kiri Bawah - Foto 5) */}
-                <div style={{ position: 'absolute', top: '365px', left: '68px', width: '131px', height: '124px', overflow: 'hidden' }}>
-                  <img src={photos[4]} alt="4" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
-
-                {/* Kotak 6 (Kanan Bawah - Foto 6) */}
-                <div style={{ position: 'absolute', top: '365px', left: '202px', width: '131px', height: '124px', overflow: 'hidden' }}>
-                  <img src={photos[5]} alt="5" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' }} />
-                </div>
-
-              </div>
             )}
             
           </div>
