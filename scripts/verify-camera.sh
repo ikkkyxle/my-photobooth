@@ -174,10 +174,25 @@ PY
     sed 's/^/        /' "$WORKDIR/movie.err" | tail -n 5
   fi
 
+  # EOS bodies keep the PTP session busy briefly after --capture-movie exits.
+  # Starting a shutter release immediately can return 0x2019 (PTP Device Busy)
+  # even though live view itself worked. Give the camera time to release the
+  # preview session before testing still capture.
+  sleep 3
+
   # Still capture straight to disk, bypassing the SD card.
   SHOT="$WORKDIR/shot.jpg"
   gphoto2 --capture-image-and-download --filename "$SHOT" --force-overwrite \
           --set-config capturetarget=0 >"$WORKDIR/cap.out" 2>&1
+  if [ ! -s "$SHOT" ] && grep -qiE 'PTP Device Busy|Full-Press failed|device busy' "$WORKDIR/cap.out"; then
+    # Some Canon bodies need the explicit remote-release event path after live
+    # view. This also verifies the same fallback used by the bridge.
+    sleep 2
+    gphoto2 --set-config capturetarget=0 \
+            --set-config eosremoterelease=Immediate \
+            --wait-event-and-download=15s \
+            --filename "$SHOT" --force-overwrite >>"$WORKDIR/cap.out" 2>&1
+  fi
   if [ -s "$SHOT" ]; then
     DIMS="$(command -v ffprobe >/dev/null 2>&1 && ffprobe -v error -show_entries stream=width,height -of csv=p=0 "$SHOT" 2>/dev/null || echo '?')"
     ok "captured $(stat -c%s "$SHOT") bytes, resolution $DIMS"

@@ -31,8 +31,7 @@ export const BRIDGE_URL = (
 export const SOURCE_DSLR = 'dslr';
 export const SOURCE_WEBCAM = 'webcam';
 
-// Canon EOS M100 sensor is 3:2. The webcam is whatever the panel gives us,
-// almost always 16:9.
+// Canon EOS sensor is 3:2. Webcam is almost always 16:9.
 const ASPECT = {
   [SOURCE_DSLR]: 3 / 2,
   [SOURCE_WEBCAM]: 16 / 9,
@@ -51,6 +50,91 @@ async function fetchJson(url, options = {}, timeoutMs = 8000) {
   } finally {
     clearTimeout(timer);
   }
+}
+
+/**
+ * useShutterEvents — subscribe to the bridge SSE stream.
+ *
+ * Calls onShutter({ dataUrl, ... }) when the physical shutter is pressed,
+ * onTimeout() when the arm window expires without a press.
+ * Returns { arm, disarm } helpers.
+ *
+ * When the bridge sends a photoUrl instead of inline base64, the hook fetches
+ * the JPEG as a blob and converts it to a data URL before calling onShutter.
+ * This is much faster than embedding multi-MB base64 in SSE.
+ */
+export function useShutterEvents({ onShutter, onTimeout, enabled = true }) {
+  const onShutterRef = useRef(onShutter);
+  const onTimeoutRef = useRef(onTimeout);
+  useEffect(() => { onShutterRef.current = onShutter; }, [onShutter]);
+  useEffect(() => { onTimeoutRef.current = onTimeout; }, [onTimeout]);
+
+  useEffect(() => {
+    if (!enabled) return;
+    let es;
+    let dead = false;
+
+    function connect() {
+      if (dead) return;
+      es = new EventSource(`${BRIDGE_URL}/api/events`);
+
+      es.addEventListener('shutter', async (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (!data.ok) {
+            if (onShutterRef.current) onShutterRef.current(data);
+            return;
+          }
+          // Prefer photoUrl (fast file download) over inline base64
+          if (data.photoUrl && !data.dataUrl) {
+            const photoAbsUrl = `${BRIDGE_URL}${data.photoUrl}`;
+            const resp = await fetch(photoAbsUrl);
+            if (!resp.ok) throw new Error(`Foto download gagal: ${resp.status}`);
+            const blob = await resp.blob();
+            const dataUrl = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result);
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
+            data.dataUrl = dataUrl;
+          }
+          if (onShutterRef.current) onShutterRef.current(data);
+        } catch (err) {
+          if (onShutterRef.current) onShutterRef.current({ ok: false, error: err.message });
+        }
+      });
+
+      es.addEventListener('shutter-timeout', () => {
+        if (onTimeoutRef.current) onTimeoutRef.current();
+      });
+
+      es.onerror = () => {
+        es.close();
+        if (!dead) setTimeout(connect, 2000);
+      };
+    }
+
+    connect();
+    return () => {
+      dead = true;
+      if (es) es.close();
+    };
+  }, [enabled]);
+
+  const arm = useCallback((timeoutSecs = 30) => {
+    return fetchJson(`${BRIDGE_URL}/api/arm`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ timeoutSecs }),
+    }, 10000);
+  }, []);
+
+  const disarm = useCallback(() => {
+    return fetchJson(`${BRIDGE_URL}/api/disarm`, { method: 'POST' }, 5000);
+  }, []);
+
+  return { arm, disarm };
 }
 
 /**
@@ -81,11 +165,12 @@ export function useCameraSource({ webcamRef } = {}) {
     };
   }, []);
 
-  const probe = useCallback(async () => {
+  const probe = useCallback(async ({ force = false } = {}) => {
     setStatus('probing');
     setError(null);
     try {
-      const payload = await fetchJson(`${BRIDGE_URL}/api/status`, {}, 20000);
+      const url = `${BRIDGE_URL}/api/status${force ? '?force=1' : ''}`;
+      const payload = await fetchJson(url, {}, 20000);
       if (!mounted.current) return;
 
       setInfo(payload);
@@ -122,6 +207,9 @@ export function useCameraSource({ webcamRef } = {}) {
     probe();
   }, [probe]);
 
+  // Exposed as camera.retry — force a fresh detect (bypasses cache)
+  const retry = useCallback(() => probe({ force: true }), [probe]);
+
   const capture = useCallback(async () => {
     if (source === SOURCE_DSLR) {
       const payload = await fetchJson(
@@ -153,7 +241,7 @@ export function useCameraSource({ webcamRef } = {}) {
     streamUrl:
       source === SOURCE_DSLR ? `${BRIDGE_URL}/api/stream?t=${streamToken}` : null,
     isDslr: source === SOURCE_DSLR,
-    retry: probe,
+    retry,
     capture,
   };
 }

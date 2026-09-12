@@ -18,7 +18,14 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "bridge": "node scripts/camera-bridge.js",
+    "bridge:sim": "node scripts/camera-bridge.js --simulate",
+    "dev": "concurrently -n bridge,web -c magenta,cyan \"npm:bridge\" \"npm:start\"",
+    "dev:sim": "concurrently -n bridge,web -c magenta,cyan \"npm:bridge:sim\" \"npm:start\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
   },
   "eslintConfig": {
     "extends": [

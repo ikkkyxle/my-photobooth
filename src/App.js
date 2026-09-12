@@ -5,6 +5,7 @@ import { FRAMES, PLAIN_FRAME, TOTAL_PHOTOS, slotAspectRatio } from './frameSlots
 import { drawPhotostrip, exportPhotostrip } from './photostrip';
 import {
   useCameraSource,
+  useShutterEvents,
   BRIDGE_URL,
 } from './useCameraSource';
 
@@ -25,19 +26,45 @@ function App() {
   const [isCapturing, setIsCapturing] = useState(false);
   const [captureError, setCaptureError] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
+  // true = bridge is waiting for a physical shutter press
+  const [isArmed, setIsArmed] = useState(false);
+  // Frozen frame: snapshot the last MJPEG src via /api/snapshot so the screen
+  // doesn't go black while the bridge stops live view for capture.
+  const [frozenFrame, setFrozenFrame] = useState(null);
 
   const webcamRef = useRef(null);
   const previewCanvasRef = useRef(null);
+  const liveImgRef = useRef(null);
 
   const camera = useCameraSource({ webcamRef });
 
+  // Capture a frozen frame from the MJPEG snapshot endpoint before arming
+  const freezeLastFrame = useCallback(async () => {
+    try {
+      const resp = await fetch(`${BRIDGE_URL}/api/snapshot`);
+      if (resp.ok) {
+        const blob = await resp.blob();
+        setFrozenFrame(URL.createObjectURL(blob));
+      }
+    } catch (_) {
+      // If snapshot fails, just leave the MJPEG img as-is; it will go stale
+      // but won't flash black.
+    }
+  }, []);
+
   // ---------------------------------------------------------------- capture
 
-  const runCapture = useCallback(async () => {
+  const runCapture = useCallback(async (forcedDataUrl = null) => {
     setIsCapturing(true);
     setCaptureError(null);
     try {
-      const shot = await camera.capture();
+      let shot;
+      if (forcedDataUrl) {
+        // Photo arrived from physical shutter event — already downloaded
+        shot = { dataUrl: forcedDataUrl, source: 'dslr', mirrored: false };
+      } else {
+        shot = await camera.capture();
+      }
       setPreviewPhoto(shot);
     } catch (err) {
       setCaptureError(err.message);
@@ -46,6 +73,61 @@ function App() {
     }
   }, [camera]);
 
+  // Physical shutter events (DSLR only) ---------------------------------
+  const handleShutterEvent = useCallback((data) => {
+    setIsArmed(false);
+    if (data.ok && data.dataUrl) {
+      runCapture(data.dataUrl);
+    } else {
+      setCaptureError(data.error || 'Shutter gagal, coba lagi.');
+    }
+  }, [runCapture]);
+
+  const handleShutterTimeout = useCallback(() => {
+    setIsArmed(false);
+    // Auto re-arm: user might have been slow, keep waiting
+    setTimeout(() => {
+      reArmIfNeeded();
+    }, 100);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const { arm, disarm } = useShutterEvents({
+    onShutter: handleShutterEvent,
+    onTimeout: handleShutterTimeout,
+    enabled: camera.isDslr && step === 'camera',
+  });
+
+  // Auto-arm when entering the camera screen in DSLR mode
+  useEffect(() => {
+    if (step !== 'camera' || !camera.isDslr) return;
+    if (isArmed || isCapturing || previewPhoto !== null) return;
+    if (photos.length >= TOTAL_PHOTOS) return;
+    setIsArmed(true);
+    freezeLastFrame().then(() =>
+      arm(60).catch((err) => {
+        setIsArmed(false);
+        setCaptureError('Arm gagal: ' + err.message);
+      })
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, camera.isDslr]);
+
+  // Re-arm after each accepted photo (for DSLR mode)
+  const reArmIfNeeded = useCallback(() => {
+    if (!camera.isDslr || isArmed || isCapturing) return;
+    if (photos.length >= TOTAL_PHOTOS) return;
+    setIsArmed(true);
+    setFrozenFrame(null); // clear old frozen frame — live view is active again
+    freezeLastFrame().then(() =>
+      arm(60).catch((err) => {
+        setIsArmed(false);
+        setCaptureError('Arm gagal: ' + err.message);
+      })
+    );
+  }, [camera.isDslr, isArmed, isCapturing, photos.length, arm, freezeLastFrame]);
+
+  // Webcam countdown flow (unchanged) -----------------------------------
   useEffect(() => {
     if (countdown === null) return undefined;
 
@@ -73,20 +155,32 @@ function App() {
     const next = [...photos, previewPhoto];
     setPhotos(next);
     setPreviewPhoto(null);
-    if (next.length === TOTAL_PHOTOS) setStep('frame');
+    if (next.length === TOTAL_PHOTOS) {
+      disarm().catch(() => {});
+      setStep('frame');
+    } else {
+      // Re-arm for next physical shutter press
+      setTimeout(reArmIfNeeded, 100);
+    }
   };
 
   const retakePhoto = () => {
     setPreviewPhoto(null);
     setCaptureError(null);
+    // Re-arm so next press retakes
+    setTimeout(reArmIfNeeded, 100);
   };
 
   const resetAll = () => {
+    disarm().catch(() => {});
     setPhotos([]);
     setPreviewPhoto(null);
     setCountdown(null);
     setIsCounting(false);
     setCaptureError(null);
+    setIsArmed(false);
+    if (frozenFrame) URL.revokeObjectURL(frozenFrame);
+    setFrozenFrame(null);
     setStep('welcome');
   };
 
@@ -320,12 +414,25 @@ function App() {
           {/* Live view. The DSLR arrives as MJPEG over HTTP because the M100 is
               a PTP device, not a UVC webcam, so getUserMedia can never see it. */}
           {camera.isDslr ? (
-            <img
-              src={camera.streamUrl}
-              alt="Live view kamera"
-              onError={camera.retry}
-              style={styles.liveView}
-            />
+            <>
+              {/* Frozen frame behind the live stream — shown when MJPEG is
+                  temporarily unavailable (during arm/capture) so the screen
+                  doesn't flash black. */}
+              {frozenFrame && (
+                <img
+                  src={frozenFrame}
+                  alt=""
+                  style={{ ...styles.liveView, zIndex: 0 }}
+                />
+              )}
+              <img
+                ref={liveImgRef}
+                src={camera.streamUrl}
+                alt="Live view kamera"
+                onError={camera.retry}
+                style={{ ...styles.liveView, zIndex: 1 }}
+              />
+            </>
           ) : (
             <Webcam
               audio={false}
@@ -374,12 +481,13 @@ function App() {
             </div>
           )}
 
+          {/* Overlay hanya saat benar-benar sedang download foto */}
           {isCapturing && (
             <div style={styles.overlayCenter}>
               <div style={{ textAlign: 'center', color: '#fff' }}>
                 <div style={{ fontSize: '64px' }}>📷</div>
                 <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '10px' }}>
-                  {camera.isDslr ? 'Kamera sedang fokus & menyimpan...' : 'Mengambil gambar...'}
+                  Mengambil gambar...
                 </div>
               </div>
             </div>
@@ -390,26 +498,48 @@ function App() {
               Foto ke-{Math.min(photos.length + 1, TOTAL_PHOTOS)} dari {TOTAL_PHOTOS}
             </div>
 
-            {captureError && <div style={styles.errorPill}>{captureError}</div>}
+            {captureError && (
+              <div style={styles.errorPill}>
+                {captureError}
+                {camera.isDslr && (
+                  <button
+                    onClick={() => {
+                      setCaptureError(null);
+                      setIsArmed(true);
+                      freezeLastFrame().then(() =>
+                        arm(60).catch((e) => { setIsArmed(false); setCaptureError(e.message); })
+                      );
+                    }}
+                    style={{ marginLeft: '10px', background: 'none', border: '1px solid #fff', color: '#fff', borderRadius: '6px', padding: '2px 8px', cursor: 'pointer', fontSize: '12px' }}
+                  >
+                    Coba lagi
+                  </button>
+                )}
+              </div>
+            )}
 
-            <button
-              onClick={startCountdown}
-              disabled={isCounting || isCapturing || previewPhoto !== null}
-              style={{
-                width: '75px',
-                height: '75px',
-                borderRadius: '50%',
-                backgroundColor: isCounting || isCapturing ? '#ccc' : '#ffffff',
-                border: '4px solid #10b981',
-                fontSize: '28px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: isCounting || isCapturing ? 'not-allowed' : 'pointer',
-              }}
-            >
-              📸
-            </button>
+            {/* Mode DSLR: tidak ada tombol — cukup pencet tombol kamera fisik.
+                Mode Webcam: tombol countdown software. */}
+            {!camera.isDslr && (
+              <button
+                onClick={startCountdown}
+                disabled={isCounting || isCapturing || previewPhoto !== null}
+                style={{
+                  width: '75px',
+                  height: '75px',
+                  borderRadius: '50%',
+                  backgroundColor: isCounting || isCapturing ? '#ccc' : '#ffffff',
+                  border: '4px solid #10b981',
+                  fontSize: '28px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: isCounting || isCapturing ? 'not-allowed' : 'pointer',
+                }}
+              >
+                📸
+              </button>
+            )}
           </div>
 
           {previewPhoto && (
@@ -511,6 +641,20 @@ function App() {
 }
 
 const styles = {
+  armedRing: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '220px',
+    height: '220px',
+    borderRadius: '50%',
+    border: '4px solid #10b981',
+    boxShadow: '0 0 0 0 rgba(16,185,129,0.6)',
+    animation: 'ripple 2s ease-out infinite',
+    pointerEvents: 'none',
+    zIndex: 6,
+  },
   page: {
     width: '100%',
     height: '100%',
